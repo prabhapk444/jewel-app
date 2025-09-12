@@ -46,7 +46,7 @@ fun SplashContent(onTimeout: () -> Unit) {
             Image(
                 painter = painterResource(id = R.drawable.logo),
                 contentDescription = "Logo",
-                modifier = Modifier.size(150.dp)
+                modifier = Modifier.size(200.dp)
             )
             Spacer(modifier = Modifier.height(16.dp))
             Text(
