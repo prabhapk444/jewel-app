@@ -7,6 +7,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.*
 import com.example.sriramjewellers.ui.theme.SriramJewellersTheme
 import com.google.firebase.FirebaseApp
+import com.example.sriramjewellers.ui.home.Home
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -22,18 +23,32 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
-
 @Composable
 fun AppContent() {
 
-    var currentScreen by remember { mutableStateOf("register") }
+    var currentScreen by remember { mutableStateOf("login") }
+    var loggedInUsername by remember { mutableStateOf("") }  // store username
 
     when (currentScreen) {
         "register" -> RegisterScreen(onNavigateToLogin = { currentScreen = "login" })
         "login" -> LoginScreen(
-            onNavigateToHome = { currentScreen = "home" },
+            onNavigateToHome = { username ->
+                loggedInUsername = username
+                currentScreen = "home"
+            },
             onNavigateToRegister = { currentScreen = "register" }
         )
-        "home" -> Home()
+        "home" -> Home(
+            username = loggedInUsername,
+            onLogout = {
+                loggedInUsername = ""
+                currentScreen = "login"
+            },
+            onViewMoreProducts = {
+                // Navigate to full products screen, or leave empty for now
+            }
+        )
+
     }
 }
+

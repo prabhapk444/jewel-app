@@ -32,7 +32,7 @@ import com.example.sriramjewellers.hashPassword
 import com.example.sriramjewellers.ui.theme.*
 
 @Composable
-fun LoginScreen(onNavigateToHome: () -> Unit, onNavigateToRegister: () -> Unit) {
+fun LoginScreen(onNavigateToHome: (String) -> Unit, onNavigateToRegister: () -> Unit) {
     val db = FirebaseFirestore.getInstance()
     val context = LocalContext.current
 
@@ -102,7 +102,7 @@ fun LoginScreen(onNavigateToHome: () -> Unit, onNavigateToRegister: () -> Unit) 
                         .addOnSuccessListener { doc ->
                             if (doc.exists() && doc.getString("password") == hashedPassword) {
                                 Toast.makeText(context, "Login Successful!", Toast.LENGTH_SHORT).show()
-                                onNavigateToHome()
+                                onNavigateToHome(username)
                             } else {
                                 Toast.makeText(context, "User not found. Please register.", Toast.LENGTH_SHORT).show()
                                 onNavigateToRegister()
@@ -123,11 +123,11 @@ fun LoginScreen(onNavigateToHome: () -> Unit, onNavigateToRegister: () -> Unit) 
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Register redirect text
+
             val annotatedText = buildAnnotatedString {
                 append("Don't have an account? ")
                 pushStringAnnotation(tag = "register", annotation = "register")
-                withStyle(style = SpanStyle(color = ButtonColor, textDecoration = TextDecoration.Underline)) {
+                withStyle(style = SpanStyle(color = ParagraphColor, textDecoration = TextDecoration.Underline)) {
                     append("Register")
                 }
                 pop()
