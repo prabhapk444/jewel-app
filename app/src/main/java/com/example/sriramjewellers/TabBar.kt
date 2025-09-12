@@ -10,29 +10,23 @@ import androidx.compose.ui.unit.sp
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TabBar() {
-    var selectedTabIndex by remember { mutableStateOf(0) }
 
-    val tabs = listOf("About","Products", "Funds")
 
-    Column(modifier = Modifier.fillMaxWidth()) {
-        TabRow(
-            selectedTabIndex = selectedTabIndex,
-            containerColor = Color(0xFF272343),
-            contentColor = Color.White,
-            modifier = Modifier.height(50.dp)
-        ) {
-            tabs.forEachIndexed { index, title ->
-                Tab(
-                    selected = selectedTabIndex == index,
-                    onClick = { selectedTabIndex = index },
-                    text = { Text(title, fontSize = 14.sp) }
-                )
-            }
+fun TabBar(selectedTabIndex: Int, onTabSelected: (Int) -> Unit) {
+    val tabs = listOf("About", "Products", "Funds")
+
+    TabRow(
+        selectedTabIndex = selectedTabIndex,
+        containerColor = Color(0xFF272343),
+        contentColor = Color.White,
+        modifier = Modifier.height(60.dp)
+    ) {
+        tabs.forEachIndexed { index, title ->
+            Tab(
+                selected = selectedTabIndex == index,
+                onClick = { onTabSelected(index) },
+                text = { Text(title, fontSize = 14.sp) }
+            )
         }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-
     }
 }

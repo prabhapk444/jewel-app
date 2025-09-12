@@ -1,15 +1,18 @@
 package com.example.sriramjewellers
 
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.annotation.RequiresApi
 import androidx.compose.runtime.*
 import com.example.sriramjewellers.ui.theme.SriramJewellersTheme
 import com.google.firebase.FirebaseApp
 import com.example.sriramjewellers.ui.home.Home
 
 class MainActivity : ComponentActivity() {
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -23,6 +26,7 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun AppContent() {
 
@@ -48,6 +52,8 @@ fun AppContent() {
                 // Navigate to full products screen, or leave empty for now
             }
         )
+
+
 
     }
 }

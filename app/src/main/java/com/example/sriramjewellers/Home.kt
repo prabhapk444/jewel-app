@@ -1,5 +1,6 @@
 package com.example.sriramjewellers.ui.home
 
+import android.os.Build
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -10,7 +11,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import android.widget.Toast
-
+import androidx.annotation.RequiresApi
+import com.example.sriramjewellers.ProductScreen
+import com.example.sriramjewellers.AboutScreen
+import com.example.sriramjewellers.FundsScreen
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun Home(
     username: String,
@@ -18,38 +23,52 @@ fun Home(
     onViewMoreProducts: () -> Unit
 ) {
     val context = LocalContext.current
+    var selectedTabIndex by remember { mutableStateOf(0) }
 
     Column(modifier = Modifier.fillMaxSize()) {
-
-        TopBar(
-            username = username, onLogout = onLogout,
-            cartItemCount = TODO(),
-            onCartClick = TODO(),
-            onProfileClick = TODO()
-        )
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        BannerCarousel()
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        CategoriesSection()
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // Pass onAddToCart lambda here
-        ProductsSection(
-            limit = 3,
-            onViewMore = onViewMoreProducts,
-            onAddToCart = { product ->
-                // Handle adding product to cart
-                Toast.makeText(context, "${product.name} added to cart", Toast.LENGTH_SHORT).show()
+        Scaffold(
+            topBar = {
+                TopBar(
+                    username = username,
+                    onLogout = onLogout,
+                    cartItemCount = 0,
+                    onCartClick = { /* handle cart click */ }
+                )
             }
-        )
+        ) { innerPadding ->
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(innerPadding)
+            ) {
+                BannerCarousel()
 
-        Spacer(modifier = Modifier.height(16.dp))
+                ProductsSection(
+                    limit = 3,
+                    onViewMore = onViewMoreProducts,
+                    onAddToCart = { product ->
+                        Toast.makeText(context, "${product.name} added to cart", Toast.LENGTH_SHORT)
+                            .show()
+                    }
+                )
 
-        TabBar()
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // Your TabBar appears here, after the content
+                TabBar(
+                    selectedTabIndex = selectedTabIndex,
+                    onTabSelected = { selectedTabIndex = it }
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // Switch content based on selected tab
+                when (selectedTabIndex) {
+                    0 -> AboutScreen()
+                    1 -> ProductScreen(onBack = TODO())
+                    2 -> FundsScreen()
+                }
+            }
+        }
     }
 }

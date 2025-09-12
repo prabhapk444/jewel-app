@@ -53,31 +53,12 @@ fun ProductCard(product: Product, onAddToCart: (Product) -> Unit) {
 
             Text(text = product.name, fontWeight = FontWeight.Bold, fontSize = 18.sp)
             Text(text = "Category: ${product.category}", fontSize = 14.sp)
-            Text(text = "Material: ${product.material}", fontSize = 14.sp)
+
             Text(text = "Price: ₹${product.price}", fontWeight = FontWeight.Medium, fontSize = 16.sp)
-            Text(text = "Description: ${product.description}", fontSize = 14.sp)
+
             Spacer(modifier = Modifier.height(8.dp))
 
-            if (product.stock == 0) {
-                Button(
-                    onClick = { },
-                    colors = ButtonDefaults.buttonColors(containerColor = Color.Red),
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Text("Out of Stock", color = Color.White)
-                }
-            } else {
-                Button(
-                    onClick = { onAddToCart(product) },
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = ButtonColor,
-                        contentColor = ButtonTextColor
-                    ),
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Text("Add to Cart")
-                }
-            }
+
 
         }
     }
