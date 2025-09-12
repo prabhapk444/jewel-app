@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "981204431546",
+    "project_id": "jewellry-3cd9f",
+    "storage_bucket": "jewellry-3cd9f.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:981204431546:android:ae319654ad9487118bc883",
+        "android_client_info": {
+          "package_name": "com.sriramjewellers"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC5cL1PAl-NaM9SvAvuXM8lGsFyc0akgwY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
