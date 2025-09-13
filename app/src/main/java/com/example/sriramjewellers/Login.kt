@@ -4,6 +4,7 @@ import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.fadeIn
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -21,6 +22,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.*
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.filled.Lock
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
@@ -62,16 +65,33 @@ fun LoginScreen(onNavigateToHome: (String) -> Unit, onNavigateToRegister: () -> 
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            AnimatedVisibility(visible = showContent, enter = fadeIn()) {
-                Text(
-                    text = "Login to Continue",
-                    fontSize = 28.sp,
-                    color = HeadlineColor,
-                    modifier = Modifier.padding(bottom = 28.dp)
-                )
+
+            Icon(
+                imageVector = Icons.Default.Lock,
+                contentDescription = "Login Icon",
+                tint = HeadlineColor,
+                modifier = Modifier.size(48.dp)
+            )
+            AnimatedVisibility(visible = showContent) {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+
+                    Image(
+                        painter = painterResource(id = R.drawable.login),                        contentDescription = "Login Logo",
+                        modifier = Modifier
+                            .size(80.dp)
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        text = "Login to Continue",
+                        fontSize = 28.sp,
+                        color = HeadlineColor,
+                        modifier = Modifier.padding(bottom = 28.dp)
+                    )
+                }
             }
 
-            // Username Field
+
+
             CustomBasicTextField(
                 value = username,
                 onValueChange = { username = it },

@@ -18,7 +18,6 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.example.sriramjewellers.Product
 import com.example.sriramjewellers.ui.theme.ButtonColor
 import com.example.sriramjewellers.ui.theme.ParagraphColor
-
 @Composable
 fun ProductsSection(limit: Int, onViewMore: () -> Unit, onAddToCart: (Product) -> Unit) {
     val db = FirebaseFirestore.getInstance()
@@ -35,10 +34,10 @@ fun ProductsSection(limit: Int, onViewMore: () -> Unit, onAddToCart: (Product) -
                             id = doc.id,
                             name = doc.getString("name") ?: "",
                             category = doc.getString("category") ?: "",
-
                             image_url = doc.getString("image_url") ?: "",
                             price = doc.getDouble("price") ?: 0.0,
-
+                            description = doc.getString("description") ?: "",
+                            stock = doc.getLong("stock")?.toInt() ?: 0
                         )
                     } catch (e: Exception) {
                         null

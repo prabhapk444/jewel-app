@@ -21,21 +21,28 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import com.google.firebase.firestore.FirebaseFirestore
 import com.example.sriramjewellers.Product
+import com.example.sriramjewellers.ui.home.Home
+import com.example.sriramjewellers.ui.home.TabBar
 import com.example.sriramjewellers.ui.home.TopBar
 import com.example.sriramjewellers.ui.theme.ButtonColor
 
-
-
 @RequiresApi(Build.VERSION_CODES.O)
+
 @Composable
-fun ProductScreen(onBack: () -> Unit) {
+fun ProductScreen(
+    onBack: () -> Unit,
+    username: String,
+    onLogout: () -> Unit,
+    selectedTabIndex: Int,
+    onTabSelected: (Int) -> Unit
+) {
     val db = FirebaseFirestore.getInstance()
     var products by remember { mutableStateOf(listOf<Product>()) }
     var searchQuery by remember { mutableStateOf("") }
     var selectedCategory by remember { mutableStateOf<String?>(null) }
     val context = LocalContext.current
 
-    // Load products
+    // Load products from Firestore
     LaunchedEffect(Unit) {
         db.collection("products")
             .get()
@@ -62,64 +69,70 @@ fun ProductScreen(onBack: () -> Unit) {
             }
     }
 
-    // Filter products
     val filteredProducts = products.filter { product ->
         (selectedCategory == null || product.category == selectedCategory) &&
                 product.name.contains(searchQuery, ignoreCase = true)
     }
 
-    Column(modifier = Modifier.fillMaxSize()) {
-        TopBar(
-            username = "User",
-            onLogout = { /* logout logic */ },
-            cartItemCount = 0,
-            onCartClick = { /* cart click */ },
-
-        )
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        // Search Field
-        OutlinedTextField(
-            value = searchQuery,
-            onValueChange = { searchQuery = it },
-            label = { Text("Search Products") },
+    Scaffold(
+        bottomBar = {
+            TabBar(selectedIndex = selectedTabIndex, onTabSelected = onTabSelected)
+        }
+    ) { innerPadding ->
+        Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp)
-        )
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        // Categories Filter
-        val categories = products.map { it.category }.distinct()
-        Row(
-            modifier = Modifier
-                .horizontalScroll(rememberScrollState())
-                .padding(horizontal = 16.dp),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                .fillMaxSize()
+                .padding(innerPadding)
         ) {
-            categories.forEach { category ->
-                Button(
-                    onClick = { selectedCategory = if (selectedCategory == category) null else category },
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = if (selectedCategory == category) ButtonColor else Color.Gray
-                    )
-                ) {
-                    Text(category)
+
+
+                TopBar(
+                    username = username,
+                    onLogout = onLogout,
+                    cartItemCount = 0,
+                    onCartClick = { /* handle cart */ }
+                )
+            Spacer(modifier = Modifier.height(8.dp))
+
+            OutlinedTextField(
+                value = searchQuery,
+                onValueChange = { searchQuery = it },
+                label = { Text("Search Products") },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp)
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            val categories = products.map { it.category }.distinct()
+            Row(
+                modifier = Modifier
+                    .horizontalScroll(rememberScrollState())
+                    .padding(horizontal = 16.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                categories.forEach { category ->
+                    Button(
+                        onClick = { selectedCategory = if (selectedCategory == category) null else category },
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = if (selectedCategory == category) ButtonColor else Color.Gray
+                        )
+                    ) {
+                        Text(category)
+                    }
                 }
             }
-        }
 
-        Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(8.dp))
 
-        // Products List
-        LazyColumn(
-            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            items(filteredProducts) { product ->
-                ProductCard(product = product, onAddToCart = { /* handle cart */ })
+            LazyColumn(
+                contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                items(filteredProducts) { product ->
+                    ProductCard(product = product, onAddToCart = { /* handle add to cart */ })
+                }
             }
         }
     }
