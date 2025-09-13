@@ -44,6 +44,10 @@ dependencies {
 
     implementation(platform("com.google.firebase:firebase-bom:32.7.2"))
 
+    implementation("com.airbnb.android:lottie-compose:5.2.0")
+
+    implementation("io.coil-kt:coil-compose:2.4.0")
+
 
     implementation("com.google.firebase:firebase-auth-ktx")
     implementation("com.google.firebase:firebase-firestore-ktx")
@@ -66,6 +70,8 @@ dependencies {
     implementation(libs.androidx.compose.animation.core.lint)
     implementation(libs.androidx.ui)
     implementation(libs.androidx.compose.runtime)
+    implementation(libs.generativeai)
+    implementation(libs.androidx.compose.foundation.layout)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

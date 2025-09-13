@@ -1,32 +1,29 @@
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material.icons.filled.Phone
 import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.foundation.Image
-import androidx.compose.animation.*
-import androidx.compose.animation.core.tween
-import kotlin.random.Random
-import com.example.sriramjewellers.R
-import com.example.sriramjewellers.ui.home.TopBar
 import com.example.sriramjewellers.ui.home.TabBar
+import com.example.sriramjewellers.ui.home.TopBar
+import androidx.compose.material3.Icon
+
 
 val BackgroundColor = Color(0xFFFFFfFE)
 val HeadlineColor = Color(0xFF272343)
 val ParagraphColor = Color(0xFF2D334A)
 val ButtonColor = Color(0xFFFFD803)
 val ButtonTextColor = Color(0xFF272343)
-val BorderColors = listOf(Color(0xFFFFD803), Color(0xFF272343), Color(0xFF2D334A))
 
 @Composable
 fun AboutScreen(
@@ -35,43 +32,22 @@ fun AboutScreen(
     selectedTabIndex: Int,
     onTabSelected: (Int) -> Unit
 ) {
-    val testimonials = listOf(
-        Testimonial("Ramesh K.", "Absolutely loved the necklace I bought. Exceptional quality and service!"),
-        Testimonial("Anita P.", "Sriram Jewellers is my go-to for all occasions. Highly recommended!"),
-        Testimonial("Vikram S.", "Great craftsmanship and friendly staff. Will shop again!")
-    )
-
-    var visible by remember { mutableStateOf(false) }
-    LaunchedEffect(Unit) { visible = true }
-
     Scaffold(
-
-        bottomBar = {
-            TabBar(selectedIndex = selectedTabIndex, onTabSelected = onTabSelected)
+        topBar = {
+            TopBar(username = username, onLogout = onLogout, cartItemCount = 0, onCartClick = {})
         },
+        bottomBar = { TabBar(selectedIndex = selectedTabIndex, onTabSelected = onTabSelected) },
         containerColor = BackgroundColor
     ) { innerPadding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(innerPadding)
                 .verticalScroll(rememberScrollState())
+                .padding(innerPadding)
         ) {
 
 
-                TopBar(username = username, onLogout = onLogout, cartItemCount = 0, onCartClick = {})
-
-            Image(
-                painter = painterResource(id = R.drawable.sri),
-                contentDescription = "About Banner",
-                contentScale = ContentScale.Crop,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(200.dp)
-            )
-
             Spacer(modifier = Modifier.height(16.dp))
-
 
             Text(
                 text = "About Sriram Jewellers",
@@ -105,8 +81,9 @@ fun AboutScreen(
 
             Spacer(modifier = Modifier.height(24.dp))
 
+
             Text(
-                "What Our Customers Say",
+                "Contact Us",
                 fontSize = 20.sp,
                 fontWeight = FontWeight.SemiBold,
                 color = HeadlineColor,
@@ -115,44 +92,16 @@ fun AboutScreen(
             Spacer(modifier = Modifier.height(16.dp))
 
             Column(
-                verticalArrangement = Arrangement.spacedBy(16.dp),
-                modifier = Modifier.padding(horizontal = 16.dp)
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                testimonials.forEachIndexed { index, testimonial ->
 
-                    val borderColor by remember { mutableStateOf(BorderColors[Random.nextInt(BorderColors.size)]) }
+                ContactItem(icon = Icons.Filled.Phone, label = "Phone", value = "04562-226414")
+                ContactItem(icon = Icons.Filled.Phone, label = "Whatsapp", value = "9047688283") // generic phone
 
-                    AnimatedVisibility(
-                        visible = visible,
-                        enter = fadeIn(animationSpec = tween(500, index * 150)) +
-                                slideInVertically(initialOffsetY = { it / 2 }, animationSpec = tween(500, index * 150))
-                    ) {
-                        Card(
-                            shape = RoundedCornerShape(16.dp),
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .border(3.dp, borderColor, RoundedCornerShape(16.dp)),
-                            colors = CardDefaults.cardColors(containerColor = ButtonColor.copy(alpha = 0.1f)),
-                            elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
-                        ) {
-                            Column(modifier = Modifier.padding(16.dp)) {
-                                Text(
-                                    text = testimonial.name,
-                                    fontWeight = FontWeight.Bold,
-                                    fontSize = 16.sp,
-                                    color = HeadlineColor
-                                )
-                                Spacer(modifier = Modifier.height(4.dp))
-                                Text(
-                                    text = testimonial.message,
-                                    fontSize = 14.sp,
-                                    color = ParagraphColor,
-                                    textAlign = TextAlign.Justify
-                                )
-                            }
-                        }
-                    }
-                }
+                ContactItem(icon = Icons.Filled.LocationOn, label = "Address", value = "110, South car Street, Sivakasi - 626124, Tamil Nadu")
             }
 
             Spacer(modifier = Modifier.height(24.dp))
@@ -160,4 +109,33 @@ fun AboutScreen(
     }
 }
 
-data class Testimonial(val name: String, val message: String)
+
+
+@Composable
+fun ContactItem(icon: androidx.compose.ui.graphics.vector.ImageVector, label: String, value: String) {
+    Card(
+        shape = RoundedCornerShape(12.dp),
+        colors = CardDefaults.cardColors(containerColor = ButtonColor.copy(alpha = 0.1f)),
+        modifier = Modifier.fillMaxWidth(),
+        elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                imageVector = icon,
+                contentDescription = "$label Icon",
+                tint = HeadlineColor,
+                modifier = Modifier.size(28.dp)
+            )
+            Spacer(modifier = Modifier.width(16.dp))
+            Column {
+                Text(text = label, fontWeight = FontWeight.Bold, color = HeadlineColor, fontSize = 16.sp)
+                Text(text = value, color = ParagraphColor, fontSize = 14.sp)
+            }
+        }
+    }
+}

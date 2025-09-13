@@ -33,6 +33,7 @@ import androidx.compose.ui.unit.sp
 import com.google.firebase.firestore.FirebaseFirestore
 import com.example.sriramjewellers.hashPassword
 import com.example.sriramjewellers.ui.theme.*
+import coil.compose.rememberAsyncImagePainter
 
 @Composable
 fun LoginScreen(onNavigateToHome: (String) -> Unit, onNavigateToRegister: () -> Unit) {
@@ -66,19 +67,14 @@ fun LoginScreen(onNavigateToHome: (String) -> Unit, onNavigateToRegister: () -> 
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
 
-            Icon(
-                imageVector = Icons.Default.Lock,
-                contentDescription = "Login Icon",
-                tint = HeadlineColor,
-                modifier = Modifier.size(48.dp)
-            )
+
             AnimatedVisibility(visible = showContent) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
 
                     Image(
-                        painter = painterResource(id = R.drawable.login),                        contentDescription = "Login Logo",
+                        painter = rememberAsyncImagePainter("file:///android_asset/login.gif"),                        contentDescription = "Login Logo",
                         modifier = Modifier
-                            .size(80.dp)
+                            .size(230.dp)
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
