@@ -42,42 +42,49 @@ android {
 
 dependencies {
 
+
     implementation(platform("com.google.firebase:firebase-bom:32.7.2"))
-
-    implementation("com.airbnb.android:lottie-compose:5.2.0")
-
-    implementation("io.coil-kt:coil-compose:2.4.0")
-
-
     implementation("com.google.firebase:firebase-auth-ktx")
     implementation("com.google.firebase:firebase-firestore-ktx")
 
 
-    implementation("androidx.security:security-crypto:1.1.0-alpha03")
+    implementation("com.airbnb.android:lottie-compose:5.2.0")
+    implementation("io.coil-kt:coil-compose:2.4.0")
+    implementation("androidx.compose.material:material-icons-extended:1.5.0")
+
+
+
     implementation("androidx.compose.material3:material3:1.2.0")
 
-    implementation("androidx.compose.material:material-icons-extended:1.5.0")
+
     implementation("androidx.navigation:navigation-compose:2.7.3")
+
+
+    implementation("androidx.security:security-crypto:1.1.0-alpha03")
+
+
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
-    implementation("io.coil-kt:coil-compose:2.4.0")
+
+
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.compose.ui)
     implementation(libs.androidx.compose.ui.graphics)
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.compose.material3)
-    implementation(libs.androidx.compose.animation.core.lint)
-    implementation(libs.androidx.ui)
-    implementation(libs.androidx.compose.runtime)
-    implementation(libs.generativeai)
     implementation(libs.androidx.compose.foundation.layout)
+    implementation(libs.androidx.compose.ui.text)
+    implementation(libs.androidx.compose.runtime)
+    implementation(libs.androidx.compose.foundation)
+
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
+
 
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)

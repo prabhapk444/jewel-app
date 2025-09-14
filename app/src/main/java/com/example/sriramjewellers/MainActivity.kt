@@ -45,20 +45,9 @@ fun AppContent() {
     var loggedInUsername by remember { mutableStateOf("") }
     var selectedTabIndex by remember { mutableStateOf(0) }
     var isLoading by remember { mutableStateOf(false) }
-    // Global cart state
-    var cartItems by remember { mutableStateOf(mutableListOf<Product>()) }
 
-    val showLoaderScreens = listOf("login", "register", "home")
 
-    LaunchedEffect(currentScreen, selectedTabIndex) {
-        if (currentScreen in showLoaderScreens) {
-            isLoading = true
-            kotlinx.coroutines.delay(3000)
-            isLoading = false
-        } else {
-            isLoading = false
-        }
-    }
+
 
     if (isLoading) {
         Box(
@@ -107,8 +96,7 @@ fun AppContent() {
                         currentScreen = "login"
                     },
                     selectedTabIndex = selectedTabIndex,
-                    onTabSelected = { index -> selectedTabIndex = index },
-
+                    onTabSelected = { index -> selectedTabIndex = index }
                 )
                 3 -> FundsScreen(
                     username = loggedInUsername,
@@ -125,3 +113,4 @@ fun AppContent() {
         }
     }
 }
+

@@ -16,6 +16,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.delay
 import androidx.compose.ui.graphics.Color
+import com.example.sriramjewellers.ui.theme.components.GlobalLoader
+
 class SplashScreen : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -34,7 +36,7 @@ class SplashScreen : ComponentActivity() {
 fun SplashContent(onTimeout: () -> Unit) {
 
     LaunchedEffect(key1 = true) {
-        delay(2000)
+        delay(4000)
         onTimeout()
     }
 
@@ -43,11 +45,10 @@ fun SplashContent(onTimeout: () -> Unit) {
         contentAlignment = Alignment.Center
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Image(
-                painter = painterResource(id = R.drawable.logo),
-                contentDescription = "Logo",
-                modifier = Modifier.size(200.dp)
-            )
+
+            GlobalLoader()
+
+
             Spacer(modifier = Modifier.height(16.dp))
             Text(
                 text = "Sriram Jewellers",
@@ -55,6 +56,7 @@ fun SplashContent(onTimeout: () -> Unit) {
                 color = Color(0xFFFFB800)
 
             )
+
         }
     }
 }
