@@ -25,6 +25,7 @@ import com.example.sriramjewellers.ui.home.Home
 import com.example.sriramjewellers.ui.home.TabBar
 import com.example.sriramjewellers.ui.home.TopBar
 import com.example.sriramjewellers.ui.theme.ButtonColor
+import com.example.sriramjewellers.ui.theme.components.GlobalLoader
 
 @RequiresApi(Build.VERSION_CODES.O)
 
@@ -38,6 +39,8 @@ fun ProductScreen(
 ) {
     val db = FirebaseFirestore.getInstance()
     var products by remember { mutableStateOf(listOf<Product>()) }
+    var isLoading by remember { mutableStateOf(true) }  // <- loader state
+
     var searchQuery by remember { mutableStateOf("") }
     var selectedCategory by remember { mutableStateOf<String?>(null) }
     val context = LocalContext.current
@@ -63,9 +66,11 @@ fun ProductScreen(
                         null
                     }
                 }
+                isLoading = false // <- data loaded
             }
             .addOnFailureListener {
                 Toast.makeText(context, "Failed to load products", Toast.LENGTH_SHORT).show()
+                isLoading = false // <- stop loader even if failed
             }
     }
 
@@ -79,59 +84,79 @@ fun ProductScreen(
             TabBar(selectedIndex = selectedTabIndex, onTabSelected = onTabSelected)
         }
     ) { innerPadding ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding)
-        ) {
+        Box(modifier = Modifier
+            .fillMaxSize()
+            .padding(innerPadding)) {
 
-
+            Column {
                 TopBar(
                     username = username,
                     onLogout = onLogout,
+                    showCartIcon = true,
                     cartItemCount = 0,
                     onCartClick = { /* handle cart */ }
                 )
-            Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(8.dp))
 
-            OutlinedTextField(
-                value = searchQuery,
-                onValueChange = { searchQuery = it },
-                label = { Text("Search Products") },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp)
-            )
+                OutlinedTextField(
+                    value = searchQuery,
+                    onValueChange = { searchQuery = it },
+                    label = { Text("Search Products") },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp)
+                )
 
-            Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(8.dp))
 
-            val categories = products.map { it.category }.distinct()
-            Row(
-                modifier = Modifier
-                    .horizontalScroll(rememberScrollState())
-                    .padding(horizontal = 16.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                categories.forEach { category ->
-                    Button(
-                        onClick = { selectedCategory = if (selectedCategory == category) null else category },
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = if (selectedCategory == category) ButtonColor else Color.Gray
-                        )
-                    ) {
-                        Text(category)
+                val categories = products.map { it.category }.distinct()
+                Row(
+                    modifier = Modifier
+                        .horizontalScroll(rememberScrollState())
+                        .padding(horizontal = 16.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    categories.forEach { category ->
+                        Button(
+                            onClick = { selectedCategory = if (selectedCategory == category) null else category },
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = if (selectedCategory == category) ButtonColor else Color.Gray
+                            )
+                        ) {
+                            Text(category)
+                        }
                     }
                 }
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                LazyColumn(
+                    contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    items(filteredProducts) { product ->
+                        ProductCard(
+                            product = product,
+                            onAddToCart = {
+
+                                Toast.makeText(context, "${product.name} added to cart", Toast.LENGTH_SHORT).show()
+
+
+                            }
+                        )
+                    }
+                }
+
             }
 
-            Spacer(modifier = Modifier.height(8.dp))
 
-            LazyColumn(
-                contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                items(filteredProducts) { product ->
-                    ProductCard(product = product, onAddToCart = { /* handle add to cart */ })
+            if (isLoading) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    GlobalLoader()
                 }
             }
         }

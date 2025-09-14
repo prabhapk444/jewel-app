@@ -34,16 +34,18 @@ fun Home(
                 .padding(innerPadding)
         ) {
 
-            TopBar(username,onLogout, cartItemCount = 0,
-                onCartClick = { /* handle cart */ }
-
+            TopBar(
+                username, cartItemCount = 0,
+                onCartClick = { /* handle cart */ },
+                onLogout = onLogout,
+                showCartIcon = false,
             )
 
             Spacer(modifier = Modifier.height(2.dp))
 
             BannerCarousel()
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(8.dp))
 
             ProductsSection(
                 limit = 3,

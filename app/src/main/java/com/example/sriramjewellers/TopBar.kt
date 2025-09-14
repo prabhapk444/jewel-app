@@ -11,39 +11,35 @@ import androidx.compose.ui.unit.sp
 @Composable
 fun TopBar(
     username: String,
-    onLogout: () -> Unit,
     cartItemCount: Int,
-    onCartClick: () -> Unit
+    showCartIcon: Boolean = true,
+    onCartClick: () -> Unit,
+    onLogout: () -> Unit
 ) {
     TopAppBar(
         title = {
             Text(
-                "Welcome, $username",
+                "Welcome To Sriram Jewellers, $username",
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color.White
             )
         },
-
         actions = {
-            IconButton(onClick = onCartClick) {
-                BadgedBox(
-                    badge = {
-                        if (cartItemCount > 0) {
-                            Badge { Text("$cartItemCount") }
-                        }
+            if (showCartIcon) {
+                IconButton(onClick = onCartClick) {
+                    BadgedBox(
+                        badge = { if (cartItemCount > 0) Badge { Text("$cartItemCount") } }
+                    ) {
+                        Icon(Icons.Default.ShoppingCart, contentDescription = "Cart", tint = Color.White)
                     }
-                ) {
-                    Icon(Icons.Default.ShoppingCart, contentDescription = "Cart", tint = Color.White)
                 }
             }
-
             IconButton(onClick = onLogout) {
                 Icon(Icons.Default.ExitToApp, contentDescription = "Logout", tint = Color.White)
             }
         },
-        colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = Color(0xFF272343)
-        )
+        colors = TopAppBarDefaults.topAppBarColors(containerColor = Color(0xFF272343))
     )
 }
+

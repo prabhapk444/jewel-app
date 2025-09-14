@@ -17,6 +17,10 @@ import androidx.compose.ui.unit.sp
 import com.example.sriramjewellers.ui.home.TabBar
 import com.example.sriramjewellers.ui.home.TopBar
 import androidx.compose.material3.Icon
+import androidx.compose.foundation.Image
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
+import com.example.sriramjewellers.R
 
 
 val BackgroundColor = Color(0xFFFFFfFE)
@@ -33,9 +37,7 @@ fun AboutScreen(
     onTabSelected: (Int) -> Unit
 ) {
     Scaffold(
-        topBar = {
-            TopBar(username = username, onLogout = onLogout, cartItemCount = 0, onCartClick = {})
-        },
+
         bottomBar = { TabBar(selectedIndex = selectedTabIndex, onTabSelected = onTabSelected) },
         containerColor = BackgroundColor
     ) { innerPadding ->
@@ -45,6 +47,19 @@ fun AboutScreen(
                 .verticalScroll(rememberScrollState())
                 .padding(innerPadding)
         ) {
+
+
+                TopBar(username = username, onLogout = onLogout, cartItemCount = 0, onCartClick = {}, showCartIcon = false,)
+
+
+            Image(
+                painter = painterResource(id = R.drawable.sri),
+                contentDescription = "About Banner",
+                contentScale = ContentScale.Crop,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(200.dp)
+            )
 
 
             Spacer(modifier = Modifier.height(16.dp))

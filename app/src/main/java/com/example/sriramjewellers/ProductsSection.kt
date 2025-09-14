@@ -18,9 +18,12 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.example.sriramjewellers.Product
 import com.example.sriramjewellers.ui.theme.ButtonColor
 import com.example.sriramjewellers.ui.theme.ParagraphColor
+import com.example.sriramjewellers.ui.theme.components.GlobalLoader
+
 @Composable
 fun ProductsSection(limit: Int, onViewMore: () -> Unit, onAddToCart: (Product) -> Unit) {
     val db = FirebaseFirestore.getInstance()
+    var isLoading by remember { mutableStateOf(true) }  // <- loader state
     var products by remember { mutableStateOf(listOf<Product>()) }
     val context = LocalContext.current
 
@@ -43,9 +46,11 @@ fun ProductsSection(limit: Int, onViewMore: () -> Unit, onAddToCart: (Product) -
                         null
                     }
                 }
+                isLoading = false
             }
             .addOnFailureListener {
                 Toast.makeText(context, "Failed to load products", Toast.LENGTH_SHORT).show()
+                isLoading = false
             }
     }
 
@@ -87,6 +92,16 @@ fun ProductsSection(limit: Int, onViewMore: () -> Unit, onAddToCart: (Product) -
         ) {
             TextButton(onClick = onViewMore) {
                 Text("View More", color = ParagraphColor)
+            }
+        }
+
+        if (isLoading) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                GlobalLoader()
             }
         }
     }

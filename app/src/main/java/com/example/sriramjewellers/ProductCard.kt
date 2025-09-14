@@ -14,8 +14,15 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.sriramjewellers.Product
-import com.example.sriramjewellers.ui.theme.ButtonColor
-import com.example.sriramjewellers.ui.theme.ButtonTextColor
+import java.text.NumberFormat
+import java.util.Locale
+
+fun formatIndianCurrency(amount: Double): String {
+    val formatter = NumberFormat.getNumberInstance(Locale("en", "IN"))
+    return formatter.format(amount)
+}
+
+
 
 @Composable
 fun ProductCard(product: Product, onAddToCart: (Product) -> Unit) {
@@ -42,24 +49,35 @@ fun ProductCard(product: Product, onAddToCart: (Product) -> Unit) {
                     bitmap = imageBitmap,
                     contentDescription = product.name,
                     modifier = Modifier
-                        .fillMaxWidth(1.0f)
+                        .fillMaxWidth()
                         .height(230.dp),
                     contentScale = ContentScale.Crop
                 )
-
             }
 
             Spacer(modifier = Modifier.height(8.dp))
 
             Text(text = product.name, fontWeight = FontWeight.Bold, fontSize = 18.sp)
-            Text(text = "Category: ${product.category}", fontSize = 14.sp)
+            Text(text = "Category: ${product.category}", fontSize = 16.sp)
+            Text(text = "Material: ${product.material}", fontSize = 15.sp)
+            Text(text = "Description: ${product.description}", fontSize = 14.sp)
+            Text(
+                text = "Price: ₹${formatIndianCurrency(product.price)}",
+                fontWeight = FontWeight.Medium,
+                fontSize = 16.sp
+            )
 
-            Text(text = "Price: ₹${product.price}", fontWeight = FontWeight.Medium, fontSize = 16.sp)
-
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(12.dp))
 
 
-
+            Button(
+                onClick = { onAddToCart(product) },
+                modifier = Modifier.fillMaxWidth(),
+                colors = ButtonDefaults.buttonColors(containerColor = ButtonColor)
+            ) {
+                Text(text = "Add to Cart", color = ButtonTextColor)
+            }
         }
     }
 }
+
