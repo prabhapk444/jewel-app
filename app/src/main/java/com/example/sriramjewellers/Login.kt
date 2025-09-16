@@ -34,9 +34,12 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.example.sriramjewellers.hashPassword
 import com.example.sriramjewellers.ui.theme.*
 import coil.compose.rememberAsyncImagePainter
-
+import kotlinx.coroutines.launch
 @Composable
-fun LoginScreen(onNavigateToHome: (String) -> Unit, onNavigateToRegister: () -> Unit) {
+fun LoginScreen(
+    onNavigateToHome: (String) -> Unit,
+    onNavigateToRegister: () -> Unit
+) {
     val db = FirebaseFirestore.getInstance()
     val context = LocalContext.current
 
@@ -44,49 +47,42 @@ fun LoginScreen(onNavigateToHome: (String) -> Unit, onNavigateToRegister: () -> 
     var password by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
 
-    // Animation state for visibility
+    // Dialog state
+    var showDialog by remember { mutableStateOf(false) }
+    var dialogMessage by remember { mutableStateOf("") }
+
+    // Animation state
     var showContent by remember { mutableStateOf(false) }
     val alphaAnim by animateFloatAsState(targetValue = if (showContent) 1f else 0f)
 
-    LaunchedEffect(Unit) {
-        showContent = true
-    }
+    LaunchedEffect(Unit) { showContent = true }
 
-    Surface(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(BackgroundColor)
-            .padding(16.dp)
-    ) {
+    Scaffold(containerColor = BackgroundColor) { paddingValues ->
         Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .wrapContentHeight()
+                .fillMaxSize()
+                .padding(paddingValues)
                 .padding(16.dp),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
 
-
             AnimatedVisibility(visible = showContent) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
-
-                    Image(
-                        painter = rememberAsyncImagePainter("file:///android_asset/login.gif"),                        contentDescription = "Login Logo",
-                        modifier = Modifier
-                            .size(230.dp)
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
                     Text(
                         text = "Login to Continue",
                         fontSize = 28.sp,
                         color = HeadlineColor,
                         modifier = Modifier.padding(bottom = 28.dp)
                     )
+                    Image(
+                        painter = rememberAsyncImagePainter("file:///android_asset/login.gif"),
+                        contentDescription = "Login Logo",
+                        modifier = Modifier.size(230.dp)
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
                 }
             }
-
-
 
             CustomBasicTextField(
                 value = username,
@@ -95,7 +91,6 @@ fun LoginScreen(onNavigateToHome: (String) -> Unit, onNavigateToRegister: () -> 
             )
             Spacer(modifier = Modifier.height(12.dp))
 
-            // Password Field
             PasswordBasicTextField(
                 value = password,
                 onValueChange = { password = it },
@@ -105,28 +100,33 @@ fun LoginScreen(onNavigateToHome: (String) -> Unit, onNavigateToRegister: () -> 
             )
             Spacer(modifier = Modifier.height(24.dp))
 
-            // Login Button
             Button(
                 onClick = {
-                    if (username.isBlank() || password.isBlank()) {
-                        Toast.makeText(context, "Enter all fields", Toast.LENGTH_SHORT).show()
-                        return@Button
+                    when {
+                        username.isBlank() || password.isBlank() -> {
+                            dialogMessage = "Enter all fields"
+                            showDialog = true
+                        }
+                        else -> {
+                            val hashedPassword = hashPassword(password)
+                            db.collection("users").document(username).get()
+                                .addOnSuccessListener { doc ->
+                                    if (doc.exists() && doc.getString("password") == hashedPassword) {
+                                        dialogMessage = "Login Successful!"
+                                        showDialog = true
+                                        onNavigateToHome(username)
+                                    } else {
+                                        dialogMessage = "User not found. Please register."
+                                        showDialog = true
+                                        onNavigateToRegister()
+                                    }
+                                }
+                                .addOnFailureListener { e ->
+                                    dialogMessage = "Error: ${e.message}"
+                                    showDialog = true
+                                }
+                        }
                     }
-                    val hashedPassword = hashPassword(password)
-
-                    db.collection("users").document(username).get()
-                        .addOnSuccessListener { doc ->
-                            if (doc.exists() && doc.getString("password") == hashedPassword) {
-                                Toast.makeText(context, "Login Successful!", Toast.LENGTH_SHORT).show()
-                                onNavigateToHome(username)
-                            } else {
-                                Toast.makeText(context, "User not found. Please register.", Toast.LENGTH_SHORT).show()
-                                onNavigateToRegister()
-                            }
-                        }
-                        .addOnFailureListener { e ->
-                            Toast.makeText(context, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
-                        }
                 },
                 modifier = Modifier
                     .fillMaxWidth()
@@ -134,16 +134,20 @@ fun LoginScreen(onNavigateToHome: (String) -> Unit, onNavigateToRegister: () -> 
                 shape = RoundedCornerShape(12.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = ButtonColor)
             ) {
-                Text(text = "Login", color = ButtonTextColor, fontSize = 16.sp)
+                Text(text = "Login", color = Color.White, fontSize = 16.sp)
             }
 
             Spacer(modifier = Modifier.height(16.dp))
 
-
             val annotatedText = buildAnnotatedString {
                 append("Don't have an account? ")
                 pushStringAnnotation(tag = "register", annotation = "register")
-                withStyle(style = SpanStyle(color = ParagraphColor, textDecoration = TextDecoration.Underline)) {
+                withStyle(
+                    style = SpanStyle(
+                        color = ParagraphColor,
+                        textDecoration = TextDecoration.Underline
+                    )
+                ) {
                     append("Register")
                 }
                 pop()
@@ -153,12 +157,24 @@ fun LoginScreen(onNavigateToHome: (String) -> Unit, onNavigateToRegister: () -> 
                 text = annotatedText,
                 onClick = { offset ->
                     annotatedText.getStringAnnotations(tag = "register", start = offset, end = offset)
-                        .firstOrNull()?.let {
-                            onNavigateToRegister()
-                        }
+                        .firstOrNull()?.let { onNavigateToRegister() }
                 },
                 style = TextStyle(color = ParagraphColor, fontSize = 14.sp)
             )
         }
+    }
+
+
+    if (showDialog) {
+        AlertDialog(
+            onDismissRequest = { showDialog = false },
+            confirmButton = {
+                TextButton(onClick = { showDialog = false }) {
+                    Text("OK")
+                }
+            },
+            title = { Text("Message") },
+            text = { Text(dialogMessage) }
+        )
     }
 }

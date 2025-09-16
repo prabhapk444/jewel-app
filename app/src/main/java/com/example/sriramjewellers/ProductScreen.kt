@@ -22,7 +22,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.example.sriramjewellers.ui.home.*
 import com.example.sriramjewellers.ui.theme.ButtonColor
 import com.example.sriramjewellers.ui.theme.components.GlobalLoader
-
+import kotlinx.coroutines.launch
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun ProductScreen(
@@ -42,6 +42,12 @@ fun ProductScreen(
     val cartItems = remember { mutableStateListOf<Product>() }
     var searchQuery by remember { mutableStateOf("") }
     var selectedCategory by remember { mutableStateOf<String?>(null) }
+
+    // AlertDialog state
+    var showDialog by remember { mutableStateOf(false) }
+    var dialogMessage by remember { mutableStateOf("") }
+
+    val scope = rememberCoroutineScope()
 
     // Load products from Firestore
     LaunchedEffect(Unit) {
@@ -67,7 +73,8 @@ fun ProductScreen(
                 isLoading = false
             }
             .addOnFailureListener {
-                Toast.makeText(context, "Failed to load products", Toast.LENGTH_SHORT).show()
+                dialogMessage = "Failed to load products"
+                showDialog = true
                 isLoading = false
             }
     }
@@ -76,7 +83,6 @@ fun ProductScreen(
         (selectedCategory == null || product.category == selectedCategory) &&
                 product.name.contains(searchQuery, ignoreCase = true)
     }
-
 
     when {
         showConfirmOrder -> {
@@ -103,23 +109,16 @@ fun ProductScreen(
                         cartItems[index] = updated
                     }
                 },
-                onRemove = { product ->
-                    cartItems.removeAll { it.id == product.id }
-                },
-                selectedTabIndex = selectedTabIndex,
+                onRemove = { product -> cartItems.removeAll { it.id == product.id } },
                 cartItemCount = cartItems.sumOf { it.stock },
                 onLogout = onLogout,
-                onTabSelected = onTabSelected,
                 onBack = { showCart = false },
                 onNavigateToConfirmOrder = { showConfirmOrder = true }
             )
         }
         else -> {
-            // Product List Screen
             Scaffold(
-                bottomBar = {
-                    TabBar(selectedIndex = selectedTabIndex, onTabSelected = onTabSelected)
-                }
+                bottomBar = { TabBar(selectedIndex = selectedTabIndex, onTabSelected = onTabSelected) }
             ) { innerPadding ->
                 Box(
                     modifier = Modifier
@@ -154,9 +153,7 @@ fun ProductScreen(
                         ) {
                             categories.forEach { category ->
                                 Button(
-                                    onClick = {
-                                        selectedCategory = if (selectedCategory == category) null else category
-                                    },
+                                    onClick = { selectedCategory = if (selectedCategory == category) null else category },
                                     colors = ButtonDefaults.buttonColors(
                                         containerColor = if (selectedCategory == category) ButtonColor else Color.Gray
                                     )
@@ -181,22 +178,34 @@ fun ProductScreen(
                                         } else {
                                             cartItems.add(product.copy(stock = 1))
                                         }
-                                        Toast.makeText(context, "${product.name} added to cart", Toast.LENGTH_SHORT).show()
+                                        dialogMessage = "${product.name} added to cart"
+                                        showDialog = true
                                     }
                                 )
                             }
                         }
                     }
                     if (isLoading) {
-                        Box(
-                            modifier = Modifier.fillMaxSize(),
-                            contentAlignment = Alignment.Center
-                        ) {
+                        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                             GlobalLoader()
                         }
                     }
                 }
             }
         }
+    }
+
+    // ✅ AlertDialog for messages
+    if (showDialog) {
+        AlertDialog(
+            onDismissRequest = { showDialog = false },
+            confirmButton = {
+                TextButton(onClick = { showDialog = false }) {
+                    Text("OK")
+                }
+            },
+            title = { Text("Message") },
+            text = { Text(dialogMessage) }
+        )
     }
 }

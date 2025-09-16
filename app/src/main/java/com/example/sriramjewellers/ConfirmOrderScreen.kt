@@ -2,6 +2,7 @@ package com.example.sriramjewellers
 
 import android.app.DatePickerDialog
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -12,26 +13,32 @@ import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.sriramjewellers.ui.theme.BackgroundColor
-import com.example.sriramjewellers.ui.theme.ButtonColor
-import com.example.sriramjewellers.ui.theme.HeadlineColor
-import com.example.sriramjewellers.ui.theme.ParagraphColor
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.FieldValue
+import com.example.sriramjewellers.Product
 import kotlinx.coroutines.launch
 import java.util.*
-import androidx.compose.material.icons.filled.ArrowBack
 
+
+
+val BackgroundColor = Color(0xFFFFFBF5)
+val HeadlineColor = Color(0xFF3E2C2C)
+val ParagraphColor = Color(0xFF5C4B4B)
+val ButtonColor = Color(0xFFB8860B)
+
+val ButtonTextColor = Color(0xFFFFFFFF)
 
 
 
@@ -40,8 +47,8 @@ fun CustomBasicTextField(
     value: String,
     onValueChange: (String) -> Unit,
     placeholder: String,
-    keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
     readOnly: Boolean = false,
+    keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
     onClick: (() -> Unit)? = null
 ) {
     Box(
@@ -66,6 +73,79 @@ fun CustomBasicTextField(
     }
 }
 
+@Composable
+fun DatePickerField(
+    date: String,
+    placeholder: String,
+    onDateSelected: (String) -> Unit
+) {
+    val context = LocalContext.current
+    val calendar = Calendar.getInstance()
+
+    val datePickerDialog = DatePickerDialog(
+        context,
+        { _, year, month, dayOfMonth ->
+            onDateSelected("%02d/%02d/%04d".format(dayOfMonth, month + 1, year))
+        },
+        calendar.get(Calendar.YEAR),
+        calendar.get(Calendar.MONTH),
+        calendar.get(Calendar.DAY_OF_MONTH)
+    )
+
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(Color(0xFFF0F0F0), RoundedCornerShape(12.dp))
+            .clickable { datePickerDialog.show() }
+            .padding(horizontal = 16.dp, vertical = 12.dp)
+    ) {
+        Text(
+            text = if (date.isNotEmpty()) date else placeholder,
+            color = if (date.isNotEmpty()) ParagraphColor else ParagraphColor.copy(alpha = 0.5f),
+            fontSize = 16.sp
+        )
+    }
+}
+
+// -------------------- Order Summary Card --------------------
+@Composable
+fun OrderSummaryCard(cartItems: List<Product>, totalAmount: Double) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(containerColor = Color.White),
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+    ) {
+        Column(
+            modifier = Modifier.padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Text("Order Summary", fontWeight = FontWeight.Bold, fontSize = 18.sp)
+            Divider()
+
+            cartItems.forEach { item ->
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(item.name, fontWeight = FontWeight.Medium)
+                        Text("Qty: ${item.stock}", fontSize = 14.sp, color = Color.Gray)
+                    }
+                    Text("₹${item.price * item.stock}", fontWeight = FontWeight.Medium)
+                }
+            }
+
+            Divider()
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text("Total Amount:", fontWeight = FontWeight.Bold, fontSize = 18.sp)
+                Text("₹$totalAmount", fontWeight = FontWeight.Bold, fontSize = 18.sp)
+            }
+        }
+    }
+}
 @OptIn(ExperimentalMaterial3Api::class)
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -76,7 +156,6 @@ fun ConfirmOrderScreen(
     onBack: () -> Unit,
     onLogout: () -> Unit
 ) {
-    val context = LocalContext.current
     val db = FirebaseFirestore.getInstance()
     val scope = rememberCoroutineScope()
 
@@ -87,44 +166,13 @@ fun ConfirmOrderScreen(
     var deliveryDate by remember { mutableStateOf("") }
     var isSubmitting by remember { mutableStateOf(false) }
 
-    val snackbarHostState = remember { SnackbarHostState() }
-
-    // DatePickerDialog
-    val calendar = Calendar.getInstance()
-    val datePickerDialog = DatePickerDialog(
-        context,
-        { _, year, month, day ->
-            deliveryDate = "%02d/%02d/%04d".format(day, month + 1, year)
-        },
-        calendar.get(Calendar.YEAR),
-        calendar.get(Calendar.MONTH),
-        calendar.get(Calendar.DAY_OF_MONTH)
-    )
+    // AlertDialog state
+    var showDialog by remember { mutableStateOf(false) }
+    var dialogMessage by remember { mutableStateOf("") }
 
     val totalAmount = cartItems.sumOf { it.price * it.stock }
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("Confirm Order", color = HeadlineColor) },
-                navigationIcon = {
-                    IconButton(onClick = onBack) {
-                        Icon(
-                            imageVector = androidx.compose.material.icons.Icons.Default.ArrowBack,
-                            contentDescription = "Back",
-                            tint = HeadlineColor
-                        )
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = BackgroundColor,
-                    titleContentColor = HeadlineColor
-                )
-            )
-        },
-        snackbarHost = { SnackbarHost(snackbarHostState) },
-        containerColor = BackgroundColor
-    ) { innerPadding ->
+    Scaffold(containerColor = BackgroundColor) { innerPadding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -133,92 +181,203 @@ fun ConfirmOrderScreen(
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-
-            CustomBasicTextField(
-                value = name,
-                onValueChange = { name = it },
-                placeholder = "Name"
-            )
-            CustomBasicTextField(
-                value = phone,
-                onValueChange = { phone = it },
-                placeholder = "Phone Number"
-            )
-            CustomBasicTextField(
-                value = address,
-                onValueChange = { address = it },
-                placeholder = "Address"
-            )
-            CustomBasicTextField(
-                value = aadhar,
-                onValueChange = { aadhar = it },
-                placeholder = "Aadhar Number"
-            )
-            CustomBasicTextField(
-                value = deliveryDate,
-                onValueChange = {},
-                placeholder = "Delivery Date",
-                readOnly = true,
-                onClick = { datePickerDialog.show() }
-            )
-
-            Spacer(modifier = Modifier.height(20.dp))
-
-            // Total & Confirm Order Button
-            Column(
-                modifier = Modifier.fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
+            // Header
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.fillMaxWidth()
             ) {
-                Text("Total: ₹$totalAmount", fontWeight = androidx.compose.ui.text.font.FontWeight.Bold, fontSize = 18.sp)
-                Button(
-                    onClick = {
-                        isSubmitting = true
-                        val orderRef = db.collection("orders").document()
-                        val orderData = hashMapOf(
-                            "id" to orderRef.id,
-                            "username" to username,
-                            "name" to name,
-                            "phone" to phone,
-                            "address" to address,
-                            "aadhar" to aadhar,
-                            "deliveryDate" to deliveryDate,
-                            "status" to "Pending",
-                            "timestamp" to System.currentTimeMillis()
-                        )
-                        orderRef.set(orderData).addOnSuccessListener {
-                            val batch = db.batch()
-                            cartItems.forEach { item ->
-                                val itemRef = db.collection("order_items").document()
-                                batch.set(itemRef, mapOf(
-                                    "orderId" to orderRef.id,
-                                    "productId" to item.id,
-                                    "name" to item.name,
-                                    "price" to item.price,
-                                    "quantity" to item.stock
-                                ))
-                            }
-                            batch.commit().addOnSuccessListener {
-                                isSubmitting = false
-                                scope.launch {
-                                    snackbarHostState.showSnackbar("Order confirmed!")
-                                    onNavigateHome()
-                                }
-                            }.addOnFailureListener {
-                                isSubmitting = false
-                                scope.launch { snackbarHostState.showSnackbar("Failed to save order items.") }
-                            }
-                        }.addOnFailureListener {
-                            isSubmitting = false
-                            scope.launch { snackbarHostState.showSnackbar("Failed to confirm order.") }
-                        }
-                    },
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(12.dp),
-                    enabled = !isSubmitting
+                IconButton(onClick = onBack) {
+                    Icon(Icons.Default.ArrowBack, contentDescription = "Back", tint = HeadlineColor)
+                }
+                Spacer(modifier = Modifier.width(8.dp))
+                Text("Confirm Order", fontWeight = FontWeight.Bold, fontSize = 20.sp, color = HeadlineColor)
+            }
+
+            // Customer Information Card
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                colors = CardDefaults.cardColors(containerColor = Color.White)
+            ) {
+                Column(
+                    modifier = Modifier.padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
-                    Text(if (isSubmitting) "Submitting..." else "Confirm Order")
+                    Text("Customer Information", fontWeight = FontWeight.Bold, fontSize = 16.sp)
+
+                    CustomBasicTextField(
+                        value = name,
+                        onValueChange = { name = it },
+                        placeholder = "Full Name*"
+                    )
+                    CustomBasicTextField(
+                        value = phone,
+                        onValueChange = { phone = it },
+                        placeholder = "Phone Number*",
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone)
+                    )
+                    CustomBasicTextField(
+                        value = address,
+                        onValueChange = { address = it },
+                        placeholder = "Delivery Address*"
+                    )
+                    CustomBasicTextField(
+                        value = aadhar,
+                        onValueChange = { aadhar = it },
+                        placeholder = "Aadhar Number*",
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+                    )
+                    DatePickerField(
+                        date = deliveryDate,
+                        placeholder = "Preferred Delivery Date*",
+                        onDateSelected = { deliveryDate = it }
+                    )
+                }
+            }
+
+            // Order Summary
+            OrderSummaryCard(cartItems = cartItems, totalAmount = totalAmount)
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            // Submit Button
+            Button(
+                onClick = {
+                    // Validation
+                    when {
+                        name.isBlank() -> {
+                            dialogMessage = "Please enter your name"
+                            showDialog = true
+                            return@Button
+                        }
+                        phone.isBlank() || phone.length < 10 -> {
+                            dialogMessage = "Please enter a valid phone number"
+                            showDialog = true
+                            return@Button
+                        }
+                        address.isBlank() -> {
+                            dialogMessage = "Please enter delivery address"
+                            showDialog = true
+                            return@Button
+                        }
+                        aadhar.isBlank() || aadhar.length != 12 -> {
+                            dialogMessage = "Please enter a valid 12-digit Aadhar number"
+                            showDialog = true
+                            return@Button
+                        }
+                        deliveryDate.isBlank() -> {
+                            dialogMessage = "Please select delivery date"
+                            showDialog = true
+                            return@Button
+                        }
+                    }
+
+                    isSubmitting = true
+
+                    // Generate order ID
+                    val orderId = "ORD_${System.currentTimeMillis()}"
+
+                    val orderData = hashMapOf(
+                        "orderId" to orderId,
+                        "username" to username.trim(),
+                        "customerName" to name.trim(),
+                        "phone" to phone.trim(),
+                        "address" to address.trim(),
+                        "aadharNumber" to aadhar.trim(),
+                        "deliveryDate" to deliveryDate,
+                        "status" to "Pending",
+                        "totalAmount" to totalAmount,
+                        "itemCount" to cartItems.size,
+                        "timestamp" to FieldValue.serverTimestamp(),
+                        "createdAt" to System.currentTimeMillis()
+                    )
+
+                    // Create order document
+                    db.collection("orders")
+                        .document(orderId)
+                        .set(orderData)
+                        .addOnSuccessListener {
+                            // Save order items
+                            val batch = db.batch()
+                            cartItems.forEachIndexed { index, item ->
+                                val orderItemId = "${orderId}_ITEM_${index + 1}"
+                                val orderItemRef = db.collection("order_items").document(orderItemId)
+                                val orderItemData = hashMapOf(
+                                    "orderItemId" to orderItemId,
+                                    "orderId" to orderId,
+                                    "productId" to item.id,
+                                    "productName" to item.name,
+                                    "category" to item.category,
+                                    "material" to item.material,
+                                    "price" to item.price,
+                                    "quantity" to item.stock,
+                                    "subtotal" to (item.price * item.stock),
+                                    "timestamp" to FieldValue.serverTimestamp(),
+                                    "createdAt" to System.currentTimeMillis()
+                                )
+                                batch.set(orderItemRef, orderItemData)
+                            }
+                            batch.commit()
+                                .addOnSuccessListener {
+                                    isSubmitting = false
+                                    dialogMessage = "Order confirmed! Order ID: $orderId"
+                                    showDialog = true
+                                }
+                                .addOnFailureListener { exception ->
+                                    isSubmitting = false
+                                    db.collection("orders").document(orderId).delete()
+                                    dialogMessage = "Failed to save order items: ${exception.message}"
+                                    showDialog = true
+                                }
+                        }
+                        .addOnFailureListener { exception ->
+                            isSubmitting = false
+                            dialogMessage = "Failed to confirm order: ${exception.message}"
+                            showDialog = true
+                        }
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(50.dp),
+                shape = RoundedCornerShape(12.dp),
+                enabled = !isSubmitting,
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = if (isSubmitting) Color.Gray else ButtonColor
+                )
+            ) {
+                if (isSubmitting) {
+                    Row(
+                        horizontalArrangement = Arrangement.Center,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(16.dp),
+                            color = Color.White
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text("Submitting...", color = Color.White)
+                    }
+                } else {
+                    Text("Confirm Order", color = Color.White, fontWeight = FontWeight.Bold)
                 }
             }
         }
+    }
+
+
+    if (showDialog) {
+        AlertDialog(
+            onDismissRequest = { showDialog = false },
+            confirmButton = {
+                TextButton(onClick = {
+                    showDialog = false
+
+                    if (dialogMessage.startsWith("Order confirmed")) onNavigateHome()
+                }) {
+                    Text("OK")
+                }
+            },
+            title = { Text("Message") },
+            text = { Text(dialogMessage) }
+        )
     }
 }

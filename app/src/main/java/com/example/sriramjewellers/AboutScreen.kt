@@ -23,11 +23,12 @@ import androidx.compose.ui.res.painterResource
 import com.example.sriramjewellers.R
 
 
-val BackgroundColor = Color(0xFFFFFfFE)
-val HeadlineColor = Color(0xFF272343)
-val ParagraphColor = Color(0xFF2D334A)
-val ButtonColor = Color(0xFFFFD803)
-val ButtonTextColor = Color(0xFF272343)
+
+val BackgroundColor = Color(0xFFFFFBF5)
+val HeadlineColor = Color(0xFF3E2C2C)
+val ParagraphColor = Color(0xFF5C4B4B)
+val ButtonColor = Color(0xFFB8860B)
+val ButtonTextColor = Color(0xFFFFFFFF)
 
 @Composable
 fun AboutScreen(

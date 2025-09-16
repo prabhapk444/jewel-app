@@ -5,32 +5,35 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 
-val BackgroundColor = Color(0xFFFFFfFE)
 
-val HeadlineColor = Color(0xFF272343)
+val BackgroundColor = Color(0xFFFFFBF5)
+val HeadlineColor = Color(0xFF3E2C2C)
+val ParagraphColor = Color(0xFF5C4B4B)
+val ButtonColor = Color(0xFFB8860B)
+val ButtonTextColor = Color(0xFFFFFFFF)
 
-val ParagraphColor = Color(0xFF2D334A)
-
-val ButtonColor = Color(0xFFFFD803)
-
-val ButtonTextColor = Color(0xFF272343)
-
+// Light color scheme
 private val LightColors = lightColorScheme(
     primary = ButtonColor,
     onPrimary = ButtonTextColor,
     background = BackgroundColor,
     onBackground = ParagraphColor,
     surface = BackgroundColor,
-    onSurface = ParagraphColor
+    onSurface = ParagraphColor,
+    secondary = Color(0xFFD4AF37),
+    onSecondary = Color.White,
 )
 
+// Dark color scheme
 private val DarkColors = darkColorScheme(
     primary = ButtonColor,
     onPrimary = ButtonTextColor,
-    background = BackgroundColor,
-    onBackground = ParagraphColor,
-    surface = BackgroundColor,
-    onSurface = ParagraphColor
+    background = Color(0xFF1B1B1B),
+    onBackground = Color(0xFFEAEAEA),
+    surface = Color(0xFF2A2A2A),
+    onSurface = Color(0xFFEAEAEA),
+    secondary = Color(0xFFD4AF37),
+    onSecondary = Color.Black
 )
 
 @Composable
