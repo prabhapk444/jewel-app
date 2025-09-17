@@ -10,71 +10,66 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 
+
+
+
 @Composable
 fun TabBar(selectedIndex: Int, onTabSelected: (Int) -> Unit) {
-    NavigationBar(containerColor = Color(0xFF272343), contentColor = Color.White) {
+    val colors = MaterialTheme.colorScheme
+
+    NavigationBar(
+        containerColor = colors.primary,
+        contentColor = colors.onPrimary
+    ) {
         NavigationBarItem(
-            icon = { Icon(Icons.Default.Home, contentDescription = "Home", tint = Color.White) },
-            label = { Text("Home", color = Color.White) },
+            icon = { Icon(Icons.Default.Home, contentDescription = "Home") },
+            label = { Text("Home") },
             selected = selectedIndex == 0,
             onClick = { onTabSelected(0) },
             colors = NavigationBarItemDefaults.colors(
-                selectedIconColor = Color.White,
-                unselectedIconColor = Color.White,
-                selectedTextColor = Color.White,
-                unselectedTextColor = Color.White,
+                selectedIconColor = colors.onPrimary,
+                unselectedIconColor = colors.onPrimary.copy(alpha = 0.7f),
+                selectedTextColor = colors.onPrimary,
+                unselectedTextColor = colors.onPrimary.copy(alpha = 0.7f),
                 indicatorColor = Color.Transparent
             )
         )
         NavigationBarItem(
-            icon = { Icon(Icons.Default.Info, contentDescription = "About", tint = Color.White) },
-            label = { Text("About", color = Color.White) },
+            icon = { Icon(Icons.Default.Info, contentDescription = "About") },
+            label = { Text("About") },
             selected = selectedIndex == 1,
             onClick = { onTabSelected(1) },
             colors = NavigationBarItemDefaults.colors(
-                selectedIconColor = Color.White,
-                unselectedIconColor = Color.White,
-                selectedTextColor = Color.White,
-                unselectedTextColor = Color.White,
+                selectedIconColor = colors.onPrimary,
+                unselectedIconColor = colors.onPrimary.copy(alpha = 0.7f),
+                selectedTextColor = colors.onPrimary,
+                unselectedTextColor = colors.onPrimary.copy(alpha = 0.7f),
                 indicatorColor = Color.Transparent
             )
         )
         NavigationBarItem(
-            icon = { Icon(Icons.Default.Store, contentDescription = "Products", tint = Color.White) },
-            label = { Text("Products", color = Color.White) },
+            icon = { Icon(Icons.Default.Store, contentDescription = "Products") },
+            label = { Text("Products") },
             selected = selectedIndex == 2,
             onClick = { onTabSelected(2) },
             colors = NavigationBarItemDefaults.colors(
-                selectedIconColor = Color.White,
-                unselectedIconColor = Color.White,
-                selectedTextColor = Color.White,
-                unselectedTextColor = Color.White,
+                selectedIconColor = colors.onPrimary,
+                unselectedIconColor = colors.onPrimary.copy(alpha = 0.7f),
+                selectedTextColor = colors.onPrimary,
+                unselectedTextColor = colors.onPrimary.copy(alpha = 0.7f),
                 indicatorColor = Color.Transparent
             )
         )
         NavigationBarItem(
-            icon = { Icon(Icons.Default.AccountBalanceWallet, contentDescription = "Funds", tint = Color.White) },
-            label = { Text("Funds", color = Color.White) },
+            icon = { Icon(Icons.Default.AccountBalanceWallet, contentDescription = "Funds") },
+            label = { Text("Funds") },
             selected = selectedIndex == 3,
             onClick = { onTabSelected(3) },
             colors = NavigationBarItemDefaults.colors(
-                selectedIconColor = Color.White,
-                unselectedIconColor = Color.White,
-                selectedTextColor = Color.White,
-                unselectedTextColor = Color.White,
-                indicatorColor = Color.Transparent
-            )
-        )
-        NavigationBarItem(
-            icon = { Icon(Icons.Default.ShoppingCart, contentDescription = "Orders", tint = Color.White) },
-            label = { Text("Orders", color = Color.White) },
-            selected = selectedIndex == 4,
-            onClick = { onTabSelected(4) },
-            colors = NavigationBarItemDefaults.colors(
-                selectedIconColor = Color.White,
-                unselectedIconColor = Color.White,
-                selectedTextColor = Color.White,
-                unselectedTextColor = Color.White,
+                selectedIconColor = colors.onPrimary,
+                unselectedIconColor = colors.onPrimary.copy(alpha = 0.7f),
+                selectedTextColor = colors.onPrimary,
+                unselectedTextColor = colors.onPrimary.copy(alpha = 0.7f),
                 indicatorColor = Color.Transparent
             )
         )

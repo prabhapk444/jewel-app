@@ -2,7 +2,6 @@ package com.example.sriramjewellers
 
 import android.app.DatePickerDialog
 import android.os.Build
-import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -27,18 +26,18 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.FieldValue
-import com.example.sriramjewellers.Product
+import com.example.sriramjewellers.ui.theme.ButtonTextColor
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 import java.util.*
 
 
 
-val BackgroundColor = Color(0xFFFFFBF5)
-val HeadlineColor = Color(0xFF3E2C2C)
-val ParagraphColor = Color(0xFF5C4B4B)
-val ButtonColor = Color(0xFFB8860B)
+val BackgroundColor = Color(0xFFFCFAF8)
+val HeadlineColor = Color(0xFF1C1410)
+val ParagraphColor = Color(0xFF4D3F33)
+val ButtonColor = Color(0xFFD4AF37)
 
-val ButtonTextColor = Color(0xFFFFFFFF)
 
 
 
@@ -107,7 +106,7 @@ fun DatePickerField(
     }
 }
 
-// -------------------- Order Summary Card --------------------
+
 @Composable
 fun OrderSummaryCard(cartItems: List<Product>, totalAmount: Double) {
     Card(
@@ -131,7 +130,7 @@ fun OrderSummaryCard(cartItems: List<Product>, totalAmount: Double) {
                         Text(item.name, fontWeight = FontWeight.Medium)
                         Text("Qty: ${item.stock}", fontSize = 14.sp, color = Color.Gray)
                     }
-                    Text("₹${item.price * item.stock}", fontWeight = FontWeight.Medium)
+                    Text("₹${(item.price * item.stock).toInt()}", fontWeight = FontWeight.Medium)
                 }
             }
 
@@ -141,11 +140,15 @@ fun OrderSummaryCard(cartItems: List<Product>, totalAmount: Double) {
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text("Total Amount:", fontWeight = FontWeight.Bold, fontSize = 18.sp)
-                Text("₹$totalAmount", fontWeight = FontWeight.Bold, fontSize = 18.sp)
+                Text("₹${totalAmount.toInt()}", fontWeight = FontWeight.Bold, fontSize = 18.sp)
             }
         }
     }
 }
+
+
+
+
 @OptIn(ExperimentalMaterial3Api::class)
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -166,7 +169,7 @@ fun ConfirmOrderScreen(
     var deliveryDate by remember { mutableStateOf("") }
     var isSubmitting by remember { mutableStateOf(false) }
 
-    // AlertDialog state
+
     var showDialog by remember { mutableStateOf(false) }
     var dialogMessage by remember { mutableStateOf("") }
 
@@ -181,7 +184,7 @@ fun ConfirmOrderScreen(
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            // Header
+
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.fillMaxWidth()
@@ -193,7 +196,7 @@ fun ConfirmOrderScreen(
                 Text("Confirm Order", fontWeight = FontWeight.Bold, fontSize = 20.sp, color = HeadlineColor)
             }
 
-            // Customer Information Card
+
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 colors = CardDefaults.cardColors(containerColor = Color.White)
@@ -234,15 +237,14 @@ fun ConfirmOrderScreen(
                 }
             }
 
-            // Order Summary
+
             OrderSummaryCard(cartItems = cartItems, totalAmount = totalAmount)
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            // Submit Button
+
             Button(
                 onClick = {
-                    // Validation
                     when {
                         name.isBlank() -> {
                             dialogMessage = "Please enter your name"
@@ -273,7 +275,7 @@ fun ConfirmOrderScreen(
 
                     isSubmitting = true
 
-                    // Generate order ID
+
                     val orderId = "ORD_${System.currentTimeMillis()}"
 
                     val orderData = hashMapOf(
@@ -291,43 +293,107 @@ fun ConfirmOrderScreen(
                         "createdAt" to System.currentTimeMillis()
                     )
 
-                    // Create order document
                     db.collection("orders")
                         .document(orderId)
                         .set(orderData)
                         .addOnSuccessListener {
-                            // Save order items
+
                             val batch = db.batch()
-                            cartItems.forEachIndexed { index, item ->
-                                val orderItemId = "${orderId}_ITEM_${index + 1}"
-                                val orderItemRef = db.collection("order_items").document(orderItemId)
-                                val orderItemData = hashMapOf(
-                                    "orderItemId" to orderItemId,
-                                    "orderId" to orderId,
-                                    "productId" to item.id,
-                                    "productName" to item.name,
-                                    "category" to item.category,
-                                    "material" to item.material,
-                                    "price" to item.price,
-                                    "quantity" to item.stock,
-                                    "subtotal" to (item.price * item.stock),
-                                    "timestamp" to FieldValue.serverTimestamp(),
-                                    "createdAt" to System.currentTimeMillis()
-                                )
-                                batch.set(orderItemRef, orderItemData)
-                            }
-                            batch.commit()
-                                .addOnSuccessListener {
-                                    isSubmitting = false
-                                    dialogMessage = "Order confirmed! Order ID: $orderId"
-                                    showDialog = true
-                                }
-                                .addOnFailureListener { exception ->
+
+                            scope.launch {
+                                try {
+                                    var stockError = false
+                                    var errorMessage = ""
+
+
+                                    for (item in cartItems) {
+                                        val productDoc = db.collection("products")
+                                            .document(item.id)
+                                            .get()
+                                            .await()
+
+                                        val currentStock = productDoc.getLong("stock") ?: 0
+                                        if (currentStock < item.stock) {
+                                            stockError = true
+                                            errorMessage = "${item.name} has only $currentStock items in stock"
+                                            break
+                                        }
+                                    }
+
+                                    if (stockError) {
+
+                                        db.collection("orders").document(orderId).delete()
+                                        isSubmitting = false
+                                        dialogMessage = "Order failed: $errorMessage"
+                                        showDialog = true
+                                    } else {
+
+                                        cartItems.forEachIndexed { index, item ->
+
+                                            val orderItemId = "${orderId}_ITEM_${index + 1}"
+                                            val orderItemRef = db.collection("order_items").document(orderItemId)
+                                            val orderItemData = hashMapOf(
+                                                "orderItemId" to orderItemId,
+                                                "orderId" to orderId,
+                                                "productId" to item.id,
+                                                "productName" to item.name,
+                                                "category" to item.category,
+                                                "material" to item.material,
+                                                "price" to item.price,
+                                                "quantity" to item.stock,
+                                                "subtotal" to (item.price * item.stock),
+                                                "timestamp" to FieldValue.serverTimestamp(),
+                                                "createdAt" to System.currentTimeMillis()
+                                            )
+                                            batch.set(orderItemRef, orderItemData)
+
+
+                                            val productRef = db.collection("products").document(item.id)
+                                            batch.update(productRef, "stock", FieldValue.increment(-item.stock.toLong()))
+
+
+                                            val stockMovementId = "${orderId}_STOCK_${index + 1}"
+                                            val stockMovementRef = db.collection("stock_movements").document(stockMovementId)
+                                            val stockMovementData = hashMapOf(
+                                                "movementId" to stockMovementId,
+                                                "orderId" to orderId,
+                                                "productId" to item.id,
+                                                "productName" to item.name,
+                                                "movementType" to "OUT",
+                                                "quantity" to item.stock,
+                                                "reason" to "Order Placed",
+                                                "timestamp" to FieldValue.serverTimestamp(),
+                                                "createdAt" to System.currentTimeMillis()
+                                            )
+                                            batch.set(stockMovementRef, stockMovementData)
+                                        }
+
+
+                                        val userCartRef = db.collection("carts").document(username)
+                                        batch.delete(userCartRef)
+
+
+                                        batch.commit()
+                                            .addOnSuccessListener {
+                                                isSubmitting = false
+                                                dialogMessage = "Order confirmed successfully!\nOrder ID: $orderId\n\nYour items will be delivered on $deliveryDate"
+                                                showDialog = true
+                                            }
+                                            .addOnFailureListener { exception ->
+                                                isSubmitting = false
+
+                                                db.collection("orders").document(orderId).delete()
+                                                dialogMessage = "Failed to process order: ${exception.message}"
+                                                showDialog = true
+                                            }
+                                    }
+                                } catch (e: Exception) {
                                     isSubmitting = false
                                     db.collection("orders").document(orderId).delete()
-                                    dialogMessage = "Failed to save order items: ${exception.message}"
+                                    dialogMessage = "Error processing order: ${e.message}"
                                     showDialog = true
                                 }
+                            }
                         }
                         .addOnFailureListener { exception ->
                             isSubmitting = false
@@ -354,10 +420,10 @@ fun ConfirmOrderScreen(
                             color = Color.White
                         )
                         Spacer(modifier = Modifier.width(8.dp))
-                        Text("Submitting...", color = Color.White)
+                        Text("Processing Order...", color = Color.White)
                     }
                 } else {
-                    Text("Confirm Order", color = Color.White, fontWeight = FontWeight.Bold)
+                    Text("Confirm Order", color = ButtonTextColor, fontWeight = FontWeight.Bold)
                 }
             }
         }
@@ -371,12 +437,14 @@ fun ConfirmOrderScreen(
                 TextButton(onClick = {
                     showDialog = false
 
-                    if (dialogMessage.startsWith("Order confirmed")) onNavigateHome()
+                    if (dialogMessage.contains("Order confirmed successfully")) {
+                        onNavigateHome()
+                    }
                 }) {
                     Text("OK")
                 }
             },
-            title = { Text("Message") },
+            title = { Text(if (dialogMessage.contains("success")) "Success" else "Notice") },
             text = { Text(dialogMessage) }
         )
     }

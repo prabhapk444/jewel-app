@@ -8,7 +8,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TopBar(
@@ -19,6 +18,7 @@ fun TopBar(
     onLogout: () -> Unit
 ) {
     var showLogoutDialog by remember { mutableStateOf(false) }
+    val colors = MaterialTheme.colorScheme
 
     TopAppBar(
         title = {
@@ -26,27 +26,40 @@ fun TopBar(
                 "Welcome To Sriram Jewellers, $username",
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold,
-                color = Color.White
+                color = colors.onPrimary
             )
         },
         actions = {
             if (showCartIcon) {
                 IconButton(onClick = onCartClick) {
                     BadgedBox(
-                        badge = { if (cartItemCount > 0) Badge { Text("$cartItemCount") } }
+                        badge = {
+                            if (cartItemCount > 0) {
+                                Badge { Text("$cartItemCount") }
+                            }
+                        }
                     ) {
-                        Icon(Icons.Default.ShoppingCart, contentDescription = "Cart", tint = Color.White)
+                        Icon(
+                            Icons.Default.ShoppingCart,
+                            contentDescription = "Cart",
+                            tint = colors.onPrimary
+                        )
                     }
                 }
             }
             IconButton(onClick = { showLogoutDialog = true }) {
-                Icon(Icons.Default.ExitToApp, contentDescription = "Logout", tint = Color.White)
+                Icon(
+                    Icons.Default.ExitToApp,
+                    contentDescription = "Logout",
+                    tint = colors.onPrimary
+                )
             }
         },
-        colors = TopAppBarDefaults.topAppBarColors(containerColor = Color(0xFF272343))
+        colors = TopAppBarDefaults.topAppBarColors(
+            containerColor = colors.primary
+        )
     )
 
-    // Logout Confirmation Dialog
     if (showLogoutDialog) {
         AlertDialog(
             onDismissRequest = { showLogoutDialog = false },

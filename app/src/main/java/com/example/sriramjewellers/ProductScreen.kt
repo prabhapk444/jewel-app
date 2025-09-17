@@ -22,7 +22,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.example.sriramjewellers.ui.home.*
 import com.example.sriramjewellers.ui.theme.ButtonColor
 import com.example.sriramjewellers.ui.theme.components.GlobalLoader
-import kotlinx.coroutines.launch
+
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun ProductScreen(
@@ -43,13 +43,12 @@ fun ProductScreen(
     var searchQuery by remember { mutableStateOf("") }
     var selectedCategory by remember { mutableStateOf<String?>(null) }
 
-    // AlertDialog state
+
     var showDialog by remember { mutableStateOf(false) }
     var dialogMessage by remember { mutableStateOf("") }
 
-    val scope = rememberCoroutineScope()
 
-    // Load products from Firestore
+
     LaunchedEffect(Unit) {
         db.collection("products")
             .get()
@@ -195,7 +194,7 @@ fun ProductScreen(
         }
     }
 
-    // ✅ AlertDialog for messages
+
     if (showDialog) {
         AlertDialog(
             onDismissRequest = { showDialog = false },

@@ -3,7 +3,6 @@ package com.example.sriramjewellers.ui.home
 import ProductCard
 import android.widget.Toast
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
@@ -16,14 +15,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.google.firebase.firestore.FirebaseFirestore
 import com.example.sriramjewellers.Product
-import com.example.sriramjewellers.ui.theme.ButtonColor
 import com.example.sriramjewellers.ui.theme.ParagraphColor
 import com.example.sriramjewellers.ui.theme.components.GlobalLoader
 
 @Composable
 fun ProductsSection(limit: Int, onViewMore: () -> Unit, onAddToCart: (Product) -> Unit) {
     val db = FirebaseFirestore.getInstance()
-    var isLoading by remember { mutableStateOf(true) }  // <- loader state
+    var isLoading by remember { mutableStateOf(true) }
     var products by remember { mutableStateOf(listOf<Product>()) }
     val context = LocalContext.current
 
@@ -55,7 +53,7 @@ fun ProductsSection(limit: Int, onViewMore: () -> Unit, onAddToCart: (Product) -
     }
 
     Column(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp)) {
-        // Title
+
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -71,7 +69,7 @@ fun ProductsSection(limit: Int, onViewMore: () -> Unit, onAddToCart: (Product) -
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        // Product List
+
         LazyRow(
             horizontalArrangement = Arrangement.spacedBy(16.dp),
             contentPadding = PaddingValues(horizontal = 8.dp)
@@ -83,7 +81,7 @@ fun ProductsSection(limit: Int, onViewMore: () -> Unit, onAddToCart: (Product) -
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        // View More Button centered
+
         Box(
             modifier = Modifier
                 .fillMaxWidth()

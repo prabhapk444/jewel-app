@@ -33,7 +33,6 @@ fun ProductCard(product: Product, onAddToCart: (Product) -> Unit) {
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
 
-            // Decode Base64 image
             val imageBitmap = remember(product.image_url) {
                 try {
                     val base64String = product.image_url.substringAfter("base64,")

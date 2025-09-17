@@ -24,11 +24,12 @@ import com.example.sriramjewellers.R
 
 
 
-val BackgroundColor = Color(0xFFFFFBF5)
-val HeadlineColor = Color(0xFF3E2C2C)
-val ParagraphColor = Color(0xFF5C4B4B)
-val ButtonColor = Color(0xFFB8860B)
-val ButtonTextColor = Color(0xFFFFFFFF)
+val BackgroundColor = Color(0xFFFCFAF8)
+val HeadlineColor = Color(0xFF1C1410)
+val ParagraphColor = Color(0xFF4D3F33)
+
+val ButtonColor = Color(0xFFD4AF37)
+val ButtonTextColor = Color(0xFF0F0A07)
 
 @Composable
 fun AboutScreen(

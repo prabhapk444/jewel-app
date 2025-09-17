@@ -1,59 +1,40 @@
 package com.example.sriramjewellers
 
-import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.fadeIn
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.ClickableText
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Visibility
-import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.*
-import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.icons.filled.Lock
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.google.firebase.firestore.FirebaseFirestore
-import com.example.sriramjewellers.hashPassword
 import com.example.sriramjewellers.ui.theme.*
 import coil.compose.rememberAsyncImagePainter
-import kotlinx.coroutines.launch
+
 @Composable
 fun LoginScreen(
     onNavigateToHome: (String) -> Unit,
     onNavigateToRegister: () -> Unit
 ) {
     val db = FirebaseFirestore.getInstance()
-    val context = LocalContext.current
+
 
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
 
-    // Dialog state
+
     var showDialog by remember { mutableStateOf(false) }
     var dialogMessage by remember { mutableStateOf("") }
 
-    // Animation state
     var showContent by remember { mutableStateOf(false) }
-    val alphaAnim by animateFloatAsState(targetValue = if (showContent) 1f else 0f)
+
 
     LaunchedEffect(Unit) { showContent = true }
 
@@ -134,7 +115,8 @@ fun LoginScreen(
                 shape = RoundedCornerShape(12.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = ButtonColor)
             ) {
-                Text(text = "Login", color = Color.White, fontSize = 16.sp)
+                Text(text = "Login", color = ButtonTextColor
+                    , fontSize = 16.sp)
             }
 
             Spacer(modifier = Modifier.height(16.dp))

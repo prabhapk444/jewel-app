@@ -1,5 +1,6 @@
 package com.example.sriramjewellers
 
+
 import BackgroundColor
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
@@ -25,16 +26,15 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.graphics.painter.BitmapPainter
 import android.graphics.BitmapFactory
 import android.util.Base64
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
+import com.example.sriramjewellers.ui.theme.ButtonColor
+import com.example.sriramjewellers.ui.theme.ButtonTextColor
 import com.google.firebase.firestore.FirebaseFirestore
 import java.text.NumberFormat
 import java.util.Locale
 
-// Helper function for Indian currency formatting
+
 fun formatIndianCurrency(amount: Double): String {
     val formatter = NumberFormat.getNumberInstance(Locale("en", "IN"))
     return formatter.format(amount)
@@ -114,8 +114,7 @@ fun Base64Image(
             }
         }
     }
-}
-@OptIn(ExperimentalMaterial3Api::class)
+}@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CartScreen(
     username: String,
@@ -179,15 +178,13 @@ fun CartScreen(
         containerColor = BackgroundColor
     ) { innerPadding ->
 
-        Column(
+        Box(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .verticalScroll(rememberScrollState())
-                .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             if (cartItems.isEmpty()) {
+
                 Box(
                     modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center
@@ -204,175 +201,177 @@ fun CartScreen(
                     }
                 }
             } else {
-                LazyColumn(
-                    verticalArrangement = Arrangement.spacedBy(16.dp),
-                    modifier = Modifier.fillMaxWidth(),
-                    userScrollEnabled = false // Disable scroll inside LazyColumn
+
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
-                    items(cartItems) { product ->
-                        Card(
-                            shape = RoundedCornerShape(12.dp),
-                            colors = CardDefaults.cardColors(containerColor = Color.White),
-                            elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            Column(
-                                modifier = Modifier.padding(16.dp),
-                                horizontalAlignment = Alignment.CenterHorizontally
+                    LazyColumn(
+                        verticalArrangement = Arrangement.spacedBy(16.dp),
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        items(cartItems) { product ->
+                            Card(
+                                shape = RoundedCornerShape(12.dp),
+                                colors = CardDefaults.cardColors(containerColor = Color.White),
+                                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+                                modifier = Modifier.fillMaxWidth()
                             ) {
-                                Card(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .height(200.dp),
-                                    shape = RoundedCornerShape(8.dp),
-                                    colors = CardDefaults.cardColors(containerColor = Color(0xFFF8F8F8))
+                                Column(
+                                    modifier = Modifier.padding(16.dp),
+                                    horizontalAlignment = Alignment.CenterHorizontally
                                 ) {
-                                    Base64Image(
-                                        base64String = productImages[product.id],
-                                        contentDescription = product.name,
-                                        modifier = Modifier.fillMaxSize()
+                                    Card(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .height(200.dp),
+                                        shape = RoundedCornerShape(8.dp),
+                                        colors = CardDefaults.cardColors(containerColor = Color(0xFFF8F8F8))
+                                    ) {
+                                        Base64Image(
+                                            base64String = productImages[product.id],
+                                            contentDescription = product.name,
+                                            modifier = Modifier.fillMaxSize()
+                                        )
+                                    }
+
+                                    Spacer(modifier = Modifier.height(12.dp))
+
+                                    Text(
+                                        text = product.name,
+                                        fontWeight = FontWeight.Bold,
+                                        fontSize = 18.sp,
+                                        color = Color.Black
+                                    )
+
+                                    Spacer(modifier = Modifier.height(8.dp))
+
+                                    Text(
+                                        text = "₹${formatIndianCurrency(product.price)}",
+                                        fontSize = 16.sp,
+                                        fontWeight = FontWeight.Medium,
+                                        color = Color(0xFF2E7D32)
+                                    )
+
+                                    if (!product.category.isNullOrBlank()) {
+                                        Text("Category: ${product.category}", fontSize = 12.sp, color = Color.Gray)
+                                    }
+                                    if (!product.material.isNullOrBlank()) {
+                                        Text("Material: ${product.material}", fontSize = 12.sp, color = Color.Gray)
+                                    }
+
+                                    Spacer(modifier = Modifier.height(16.dp))
+
+                                    Row(
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.Center,
+                                        modifier = Modifier.fillMaxWidth()
+                                    ) {
+                                        IconButton(
+                                            onClick = {
+                                                if (product.stock > 1) {
+                                                    onQuantityChange(product, -1)
+                                                }
+                                            },
+                                            enabled = product.stock > 1
+                                        ) {
+                                            Icon(
+                                                Icons.Rounded.Remove,
+                                                contentDescription = "Decrease quantity",
+                                                tint = if (product.stock > 1) Color.Black else Color.Gray
+                                            )
+                                        }
+
+                                        Surface(
+                                            modifier = Modifier.padding(horizontal = 16.dp),
+                                            color = Color(0xFFE3F2FD),
+                                            shape = RoundedCornerShape(8.dp)
+                                        ) {
+                                            Text(
+                                                text = "${product.stock}",
+                                                fontSize = 18.sp,
+                                                fontWeight = FontWeight.Bold,
+                                                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+                                            )
+                                        }
+
+                                        IconButton(onClick = { onQuantityChange(product, 1) }) {
+                                            Icon(Icons.Default.Add, contentDescription = "Increase quantity")
+                                        }
+
+                                        Spacer(modifier = Modifier.width(16.dp))
+
+                                        IconButton(onClick = { onRemove(product) }) {
+                                            Icon(Icons.Default.Delete, contentDescription = "Remove item", tint = Color.Red)
+                                        }
+                                    }
+
+                                    Spacer(modifier = Modifier.height(8.dp))
+
+                                    Text(
+                                        text = "Subtotal: ₹${formatIndianCurrency(product.price * product.stock)}",
+                                        fontSize = 16.sp,
+                                        fontWeight = FontWeight.Medium,
+                                        color = Color(0xFF2E7D32)
                                     )
                                 }
-
-                                Spacer(modifier = Modifier.height(12.dp))
-
-                                Text(
-                                    text = product.name,
-                                    fontWeight = FontWeight.Bold,
-                                    fontSize = 18.sp,
-                                    color = Color.Black
-                                )
-
-                                Spacer(modifier = Modifier.height(8.dp))
-
-                                Text(
-                                    text = "₹${formatIndianCurrency(product.price)}",
-                                    fontSize = 16.sp,
-                                    fontWeight = FontWeight.Medium,
-                                    color = Color(0xFF2E7D32)
-                                )
-
-                                if (!product.category.isNullOrBlank()) {
-                                    Text("Category: ${product.category}", fontSize = 12.sp, color = Color.Gray)
-                                }
-                                if (!product.material.isNullOrBlank()) {
-                                    Text("Material: ${product.material}", fontSize = 12.sp, color = Color.Gray)
-                                }
-
-                                Spacer(modifier = Modifier.height(16.dp))
-
-                                Row(
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    horizontalArrangement = Arrangement.Center,
-                                    modifier = Modifier.fillMaxWidth()
-                                ) {
-                                    IconButton(
-                                        onClick = {
-                                            if (product.stock > 1) {
-                                                onQuantityChange(product, -1)
-                                            }
-                                        },
-                                        enabled = product.stock > 1
-                                    ) {
-                                        Icon(
-                                            Icons.Rounded.Remove,
-                                            contentDescription = "Decrease quantity",
-                                            tint = if (product.stock > 1) Color.Black else Color.Gray
-                                        )
-                                    }
-
-                                    Surface(
-                                        modifier = Modifier.padding(horizontal = 16.dp),
-                                        color = Color(0xFFE3F2FD),
-                                        shape = RoundedCornerShape(8.dp)
-                                    ) {
-                                        Text(
-                                            text = "${product.stock}",
-                                            fontSize = 18.sp,
-                                            fontWeight = FontWeight.Bold,
-                                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
-                                        )
-                                    }
-
-                                    IconButton(onClick = { onQuantityChange(product, 1) }) {
-                                        Icon(Icons.Default.Add, contentDescription = "Increase quantity")
-                                    }
-
-                                    Spacer(modifier = Modifier.width(16.dp))
-
-                                    IconButton(onClick = { onRemove(product) }) {
-                                        Icon(Icons.Default.Delete, contentDescription = "Remove item", tint = Color.Red)
-                                    }
-                                }
-
-                                Spacer(modifier = Modifier.height(8.dp))
-
-                                Text(
-                                    text = "Subtotal: ₹${formatIndianCurrency(product.price * product.stock)}",
-                                    fontSize = 16.sp,
-                                    fontWeight = FontWeight.Medium,
-                                    color = Color(0xFF2E7D32)
-                                )
                             }
                         }
                     }
-                }
 
-                // Order Summary & Process Order inside content
-                Spacer(modifier = Modifier.height(24.dp))
+                    val total = cartItems.sumOf { it.price * it.stock }
+                    val totalItems = cartItems.sumOf { it.stock }
 
-                val total = cartItems.sumOf { it.price * it.stock }
-                val totalItems = cartItems.sumOf { it.stock }
-
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = CardDefaults.cardColors(containerColor = Color(0xFF1976D2)),
-                    elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
-                    shape = RoundedCornerShape(12.dp)
-                ) {
-                    Column(
-                        modifier = Modifier.padding(20.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = CardDefaults.cardColors(containerColor = Color(0xFF1976D2)),
+                        elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
+                        shape = RoundedCornerShape(12.dp)
                     ) {
-                        Text(
-                            text = "Order Summary",
-                            fontSize = 18.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = Color.White
-                        )
-                        Spacer(modifier = Modifier.height(12.dp))
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween
+                        Column(
+                            modifier = Modifier.padding(20.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally
                         ) {
-                            Text("Total Items:", fontSize = 16.sp, fontWeight = FontWeight.Medium, color = Color.White)
-                            Text("$totalItems", fontSize = 16.sp, fontWeight = FontWeight.Medium, color = Color.White)
-                        }
-                        Spacer(modifier = Modifier.height(8.dp))
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween
-                        ) {
-                            Text("Grand Total:", fontSize = 20.sp, fontWeight = FontWeight.Bold, color = Color.White)
-                            Text("₹${formatIndianCurrency(total)}", fontSize = 20.sp, fontWeight = FontWeight.Bold, color = Color.Yellow)
+                            Text(
+                                text = "Order Summary",
+                                fontSize = 18.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Color.White
+                            )
+                            Spacer(modifier = Modifier.height(12.dp))
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                Text("Total Items:", fontSize = 16.sp, fontWeight = FontWeight.Medium, color = Color.White)
+                                Text("$totalItems", fontSize = 16.sp, fontWeight = FontWeight.Medium, color = Color.White)
+                            }
+                            Spacer(modifier = Modifier.height(8.dp))
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                Text("Grand Total:", fontSize = 20.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                                Text("₹${formatIndianCurrency(total)}", fontSize = 20.sp, fontWeight = FontWeight.Bold, color = Color.Yellow)
+                            }
                         }
                     }
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    Button(
+                        onClick = onNavigateToConfirmOrder,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(56.dp),
+                        shape = RoundedCornerShape(12.dp),
+                        colors = ButtonDefaults.buttonColors(containerColor = ButtonColor)
+                    ) {
+                        Text("Process Order", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = ButtonTextColor)
+                    }
                 }
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                Button(
-                    onClick = onNavigateToConfirmOrder,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(56.dp),
-                    shape = RoundedCornerShape(12.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4CAF50))
-                ) {
-                    Text("Process Order", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Color.White)
-                }
-
-                Spacer(modifier = Modifier.height(16.dp))
             }
         }
     }
