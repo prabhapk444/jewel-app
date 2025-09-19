@@ -10,9 +10,11 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import android.widget.Toast
 import androidx.annotation.RequiresApi
+import com.example.sriramjewellers.BackgroundColor
 
 
 @RequiresApi(Build.VERSION_CODES.O)
+
 @Composable
 fun Home(
     username: String,
@@ -24,9 +26,19 @@ fun Home(
     val context = LocalContext.current
 
     Scaffold(
+        containerColor = BackgroundColor,
+        topBar = {
+            TopBar(
+                username,
+                cartItemCount = 0,
+                onCartClick = { /* handle cart */ },
+                onLogout = onLogout,
+                showCartIcon = false,
+            )
+        },
         bottomBar = {
             TabBar(selectedIndex = selectedTabIndex, onTabSelected = onTabSelected)
-        }
+        },
     ) { innerPadding ->
         Column(
             modifier = Modifier
@@ -34,14 +46,8 @@ fun Home(
                 .padding(innerPadding)
         ) {
 
-            TopBar(
-                username, cartItemCount = 0,
-                onCartClick = { /* handle cart */ },
-                onLogout = onLogout,
-                showCartIcon = false,
-            )
 
-            Spacer(modifier = Modifier.height(2.dp))
+            Spacer(modifier = Modifier.height(4.dp))
 
             BannerCarousel()
 

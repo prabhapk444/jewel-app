@@ -24,7 +24,7 @@ private val SoftCream = Color(0xFFFFFDF9)
 private val ErrorRed = Color(0xFFDC2626)
 private val SuccessGreen = Color(0xFF059669)
 
-// Premium Accent Colors - Innovative Luxury
+
 private val RoseGold = Color(0xFFE8B4B8)
 private val Platinum = Color(0xFFE5E7EB)
 private val Diamond = Color(0xFFFDFEFF)
@@ -32,7 +32,7 @@ private val Onyx = Color(0xFF050404)
 private val Pearl = Color(0xFFFBF8F3)
 private val Copper = Color(0xFFBC6C25)
 
-// New Innovative Luxury Accents
+
 private val Amethyst = Color(0xFF9F7AEA)
 private val Sapphire = Color(0xFF1E40AF)
 private val Citrine = Color(0xFFFBBF24)

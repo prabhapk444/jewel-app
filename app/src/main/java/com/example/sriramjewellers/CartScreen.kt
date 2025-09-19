@@ -1,7 +1,7 @@
 package com.example.sriramjewellers
 
 
-import BackgroundColor
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -28,12 +28,12 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.text.font.FontWeight
 import android.graphics.BitmapFactory
 import android.util.Base64
+import com.example.sriramjewellers.ui.theme.BackgroundColor
 import com.example.sriramjewellers.ui.theme.ButtonColor
 import com.example.sriramjewellers.ui.theme.ButtonTextColor
 import com.google.firebase.firestore.FirebaseFirestore
 import java.text.NumberFormat
 import java.util.Locale
-
 
 fun formatIndianCurrency(amount: Double): String {
     val formatter = NumberFormat.getNumberInstance(Locale("en", "IN"))
@@ -114,7 +114,11 @@ fun Base64Image(
             }
         }
     }
-}@OptIn(ExperimentalMaterial3Api::class)
+
+}
+
+
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CartScreen(
     username: String,
@@ -131,6 +135,8 @@ fun CartScreen(
 
     var productImages by remember { mutableStateOf<Map<String, String>>(emptyMap()) }
     var isLoadingImages by remember { mutableStateOf(false) }
+
+    val colors = MaterialTheme.colorScheme
 
     LaunchedEffect(cartItems) {
         if (cartItems.isNotEmpty()) {
@@ -160,23 +166,43 @@ fun CartScreen(
     }
 
     Scaffold(
+        containerColor = BackgroundColor,
         topBar = {
             TopAppBar(
-                title = { Text("Your Cart") },
+                title = {
+                    Text(
+                        text = "Back",
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onPrimary
+                    )
+                },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.Default.ArrowBack, contentDescription = "Back",   tint = MaterialTheme.colorScheme.onPrimary)
                     }
                 },
                 actions = {
                     IconButton(onClick = onLogout) {
-                        Icon(Icons.Default.ExitToApp, contentDescription = "Logout")
+                        Icon(Icons.Default.ExitToApp, contentDescription = "Logout",   tint = MaterialTheme.colorScheme.onPrimary)
                     }
-                }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.primary
+                )
             )
         },
-        containerColor = BackgroundColor
-    ) { innerPadding ->
+    )
+    { innerPadding ->
+
+        Text(
+            text = "Back",
+            fontSize = 18.sp,
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.onPrimary
+        )
+
+        Spacer(modifier = Modifier.height(8.dp))
 
         Box(
             modifier = Modifier

@@ -6,7 +6,6 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
@@ -17,7 +16,6 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -124,7 +122,7 @@ fun SplashContent(onTimeout: () -> Unit) {
                     colors = listOf(
                         BackgroundColor,
                         BackgroundColor.copy(alpha = 0.95f),
-                        Color(0xFFFCF8F5)
+
                     ),
                     startY = 0f,
                     endY = Float.POSITIVE_INFINITY
@@ -170,7 +168,7 @@ fun SplashContent(onTimeout: () -> Unit) {
                     Text(
                         text = "💎",
                         fontSize = 48.sp,
-                        color = ButtonColor
+                        color = MaterialTheme.colorScheme.buttonColorCompat
                     )
 
 
@@ -184,7 +182,7 @@ fun SplashContent(onTimeout: () -> Unit) {
                 text = "Sriram Jewellers",
                 fontSize = 28.sp,
                 fontWeight = FontWeight.Bold,
-                color = HeadlineColor,
+                color = MaterialTheme.colorScheme.headlineColorCompat,
                 textAlign = TextAlign.Center,
                 letterSpacing = 1.2.sp,
                 modifier = Modifier
@@ -199,7 +197,7 @@ fun SplashContent(onTimeout: () -> Unit) {
                 text = "Crafting Timeless Elegance",
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Medium,
-                color = ParagraphColor.copy(alpha = 0.8f),
+                color = MaterialTheme.colorScheme.paragraphColorCompat.copy(alpha = 0.8f),
                 textAlign = TextAlign.Center,
                 letterSpacing = 0.8.sp,
                 modifier = Modifier.alpha(taglineAlpha)
@@ -220,28 +218,12 @@ fun SplashContent(onTimeout: () -> Unit) {
             Text(
                 text = "Loading your premium experience...",
                 fontSize = 12.sp,
-                color = ParagraphColor.copy(alpha = 0.6f),
+                color =  MaterialTheme.colorScheme.paragraphColorCompat.copy(alpha = 0.6f),
                 textAlign = TextAlign.Center,
                 fontWeight = FontWeight.Normal,
                 modifier = Modifier.alpha(loaderAlpha)
             )
         }
 
-
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(bottom = 24.dp),
-            contentAlignment = Alignment.BottomCenter
-        ) {
-            Text(
-                text = "Est. 2024 • Premium Jewelry Collection",
-                fontSize = 11.sp,
-                color = ParagraphColor.copy(alpha = 0.5f),
-                textAlign = TextAlign.Center,
-                fontWeight = FontWeight.Light,
-                modifier = Modifier.alpha(taglineAlpha)
-            )
-        }
     }
 }

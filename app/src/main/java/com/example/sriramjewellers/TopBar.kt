@@ -1,11 +1,11 @@
 package com.example.sriramjewellers.ui.home
 
+
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ExitToApp
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 @OptIn(ExperimentalMaterial3Api::class)
@@ -57,7 +57,8 @@ fun TopBar(
         },
         colors = TopAppBarDefaults.topAppBarColors(
             containerColor = colors.primary
-        )
+        ),
+
     )
 
     if (showLogoutDialog) {

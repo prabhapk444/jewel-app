@@ -1,3 +1,4 @@
+
 import android.content.Context
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.*
@@ -22,13 +23,18 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.sriramjewellers.BackgroundColor
 import com.example.sriramjewellers.ui.home.TabBar
 import com.example.sriramjewellers.ui.home.TopBar
 import com.example.sriramjewellers.ui.theme.HeadlineColor
 import com.example.sriramjewellers.ui.theme.ButtonColor
 import com.example.sriramjewellers.ui.theme.ButtonTextColor
 import com.example.sriramjewellers.ui.theme.ParagraphColor
+import com.example.sriramjewellers.ui.theme.headlineColorCompat
 import com.google.firebase.firestore.FirebaseFirestore
+import androidx.compose.ui.text.TextStyle
+
+
 
 data class FundRecord(
     val month: String = "",
@@ -58,6 +64,16 @@ fun FundsScreen(
     }
 
     Scaffold(
+        containerColor = BackgroundColor,
+        topBar = {
+            TopBar(
+                username,
+                cartItemCount = 0,
+                onCartClick = { /* handle cart */ },
+                onLogout = onLogout,
+                showCartIcon = false,
+            )
+        },
         bottomBar = {
             TabBar(selectedIndex = selectedTabIndex, onTabSelected = onTabSelected)
         }
@@ -66,22 +82,18 @@ fun FundsScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
+
         ) {
-            TopBar(
-                username,
-                cartItemCount = 0,
-                onLogout = onLogout,
-                onCartClick = { /* handle cart */ },
-                showCartIcon = false,
-            )
+
 
             Spacer(modifier = Modifier.height(24.dp))
 
 
             Card(
+
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(16.dp),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer),
+                colors = CardDefaults.cardColors(containerColor = BackgroundColor),
                 elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
             ) {
                 Column(
@@ -92,7 +104,7 @@ fun FundsScreen(
                         imageVector = Icons.Default.AccountBalance,
                         contentDescription = null,
                         modifier = Modifier.size(32.dp),
-                        tint = MaterialTheme.colorScheme.primary
+                        tint = MaterialTheme.colorScheme.headlineColorCompat
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
@@ -135,8 +147,9 @@ fun FundsScreen(
                     OutlinedTextField(
                         value = phoneInput,
                         onValueChange = { phoneInput = it },
+
                         label = { Text("Phone Number") },
-                        placeholder = { Text("Enter 10-digit phone number") },
+                        placeholder = { Text("Enter 10-digit phone number")},
                         leadingIcon = {
                             Icon(
                                 imageVector = Icons.Default.Phone,
@@ -146,7 +159,8 @@ fun FundsScreen(
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
                         modifier = Modifier.fillMaxWidth(),
                         singleLine = true,
-                        shape = RoundedCornerShape(8.dp)
+                        shape = RoundedCornerShape(8.dp),
+                        textStyle = TextStyle(color = ParagraphColor)
                     )
 
                     Spacer(modifier = Modifier.height(12.dp))
@@ -224,7 +238,7 @@ fun FundsScreen(
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(8.dp),
-                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.errorContainer)
+                    colors = CardDefaults.cardColors(containerColor =  com.example.sriramjewellers.ui.theme.BackgroundColor)
                 ) {
                     Row(
                         modifier = Modifier.padding(12.dp),
@@ -233,13 +247,13 @@ fun FundsScreen(
                         Icon(
                             imageVector = Icons.Default.Info,
                             contentDescription = null,
-                            tint = MaterialTheme.colorScheme.error,
+                            tint = com.example.sriramjewellers.ui.theme.BackgroundColor,
                             modifier = Modifier.size(20.dp)
                         )
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(
                             text = error,
-                            color = MaterialTheme.colorScheme.error,
+                            color = com.example.sriramjewellers.ui.theme.BackgroundColor,
                             fontSize = 14.sp
                         )
                     }
@@ -254,7 +268,7 @@ fun FundsScreen(
                     Card(
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(12.dp),
-                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
+                        colors = CardDefaults.cardColors(containerColor = BackgroundColor.copy(alpha = 0.5f))
                     ) {
                         Column(
                             modifier = Modifier
@@ -293,7 +307,7 @@ fun FundsScreen(
                     Card(
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(12.dp),
-                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f))
+                        colors = CardDefaults.cardColors(containerColor = BackgroundColor.copy(alpha = 0.3f))
                     ) {
                         Column(
                             modifier = Modifier
@@ -402,7 +416,7 @@ fun EnhancedFundItem(record: FundRecord) {
 
                 Card(
                     shape = RoundedCornerShape(20.dp),
-                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
+                    colors = CardDefaults.cardColors(containerColor = com.example.sriramjewellers.ui.theme.BackgroundColor)
                 ) {
                     Text(
                         text = "₹${record.amount}",

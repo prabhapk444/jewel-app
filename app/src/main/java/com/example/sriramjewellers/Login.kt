@@ -16,6 +16,7 @@ import androidx.compose.ui.unit.sp
 import com.google.firebase.firestore.FirebaseFirestore
 import com.example.sriramjewellers.ui.theme.*
 import coil.compose.rememberAsyncImagePainter
+import kotlinx.coroutines.delay
 
 @Composable
 fun LoginScreen(
@@ -24,17 +25,14 @@ fun LoginScreen(
 ) {
     val db = FirebaseFirestore.getInstance()
 
-
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
-
 
     var showDialog by remember { mutableStateOf(false) }
     var dialogMessage by remember { mutableStateOf("") }
 
     var showContent by remember { mutableStateOf(false) }
-
 
     LaunchedEffect(Unit) { showContent = true }
 
@@ -95,11 +93,9 @@ fun LoginScreen(
                                     if (doc.exists() && doc.getString("password") == hashedPassword) {
                                         dialogMessage = "Login Successful!"
                                         showDialog = true
-                                        onNavigateToHome(username)
                                     } else {
                                         dialogMessage = "User not found. Please register."
                                         showDialog = true
-                                        onNavigateToRegister()
                                     }
                                 }
                                 .addOnFailureListener { e ->
@@ -115,8 +111,7 @@ fun LoginScreen(
                 shape = RoundedCornerShape(12.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = ButtonColor)
             ) {
-                Text(text = "Login", color = ButtonTextColor
-                    , fontSize = 16.sp)
+                Text(text = "Login", color = ButtonTextColor, fontSize = 16.sp)
             }
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -143,6 +138,30 @@ fun LoginScreen(
                 },
                 style = TextStyle(color = ParagraphColor, fontSize = 14.sp)
             )
+        }
+    }
+
+
+    if (showDialog && dialogMessage == "Login Successful!") {
+        LaunchedEffect(Unit) {
+            delay(500)
+            onNavigateToHome(username)
+            showDialog = false
+        }
+    }
+
+    if (showDialog && dialogMessage == "User not found. Please register.") {
+        LaunchedEffect(Unit) {
+            delay(500)
+            onNavigateToRegister()
+            showDialog = false
+        }
+    }
+
+    if (showDialog && dialogMessage.startsWith("Error")) {
+        LaunchedEffect(Unit) {
+            delay(500)
+            showDialog = false
         }
     }
 

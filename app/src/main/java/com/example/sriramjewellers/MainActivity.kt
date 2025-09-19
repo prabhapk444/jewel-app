@@ -17,6 +17,11 @@ import androidx.compose.ui.Modifier
 import com.example.sriramjewellers.ui.theme.SriramJewellersTheme
 import com.google.firebase.FirebaseApp
 import com.example.sriramjewellers.ui.home.Home
+import androidx.activity.compose.BackHandler
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+
+
 
 class MainActivity : ComponentActivity() {
     @RequiresApi(Build.VERSION_CODES.O)
@@ -33,7 +38,6 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
-
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun AppContent() {
@@ -43,7 +47,7 @@ fun AppContent() {
     var isLoading by remember { mutableStateOf(false) }
 
 
-
+    var showLogoutDialog by remember { mutableStateOf(false) }
 
     if (isLoading) {
         Box(
@@ -53,6 +57,47 @@ fun AppContent() {
             GlobalLoader()
         }
     } else {
+        if (currentScreen == "home") {
+            BackHandler {
+                if (selectedTabIndex != 0) {
+
+                    selectedTabIndex = 0
+                } else {
+
+                    showLogoutDialog = true
+                }
+            }
+        }
+
+
+        if (showLogoutDialog) {
+            androidx.compose.material3.AlertDialog(
+                onDismissRequest = { showLogoutDialog = false },
+                title = {
+                    Text(text = "Confirm Logout")
+                },
+                text = {
+                    Text(text = "Are you sure you want to logout?")
+                },
+                confirmButton = {
+                    TextButton(onClick = {
+                        loggedInUsername = ""
+                        currentScreen = "login"
+                        showLogoutDialog = false
+                    }) {
+                        Text("Yes")
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = {
+                        showLogoutDialog = false
+                    }) {
+                        Text("No")
+                    }
+                }
+            )
+        }
+
         when (currentScreen) {
             "register" -> RegisterScreen(onNavigateToLogin = { currentScreen = "login" })
             "login" -> LoginScreen(
@@ -104,9 +149,6 @@ fun AppContent() {
                     selectedTabIndex = selectedTabIndex,
                     onTabSelected = { index -> selectedTabIndex = index }
                 )
-
-
-
             }
         }
     }

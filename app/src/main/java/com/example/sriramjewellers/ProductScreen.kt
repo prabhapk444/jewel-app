@@ -2,7 +2,6 @@ package com.example.sriramjewellers
 
 import ProductCard
 import android.os.Build
-import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
@@ -16,11 +15,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import com.google.firebase.firestore.FirebaseFirestore
 import com.example.sriramjewellers.ui.home.*
 import com.example.sriramjewellers.ui.theme.ButtonColor
+import com.example.sriramjewellers.ui.theme.ParagraphColor
 import com.example.sriramjewellers.ui.theme.components.GlobalLoader
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -117,6 +118,17 @@ fun ProductScreen(
         }
         else -> {
             Scaffold(
+                containerColor = BackgroundColor,
+                topBar = {
+                    TopBar(
+                        username = username,
+                        onLogout = onLogout,
+                        showCartIcon = true,
+                        cartItemCount = cartItems.sumOf { it.stock },
+                        onCartClick = { showCart = true }
+                    )
+                },
+
                 bottomBar = { TabBar(selectedIndex = selectedTabIndex, onTabSelected = onTabSelected) }
             ) { innerPadding ->
                 Box(
@@ -125,19 +137,14 @@ fun ProductScreen(
                         .padding(innerPadding)
                 ) {
                     Column {
-                        TopBar(
-                            username = username,
-                            onLogout = onLogout,
-                            showCartIcon = true,
-                            cartItemCount = cartItems.sumOf { it.stock },
-                            onCartClick = { showCart = true }
-                        )
+
                         Spacer(modifier = Modifier.height(8.dp))
                         OutlinedTextField(
                             value = searchQuery,
                             onValueChange = { searchQuery = it },
                             label = { Text("Search Products") },
                             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
+                            textStyle = TextStyle(color = ParagraphColor),
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(horizontal = 16.dp)

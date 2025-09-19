@@ -31,15 +31,10 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import java.util.*
 
-
-
 val BackgroundColor = Color(0xFFFCFAF8)
 val HeadlineColor = Color(0xFF1C1410)
 val ParagraphColor = Color(0xFF4D3F33)
 val ButtonColor = Color(0xFFD4AF37)
-
-
-
 
 @Composable
 fun CustomBasicTextField(
@@ -80,11 +75,24 @@ fun DatePickerField(
 ) {
     val context = LocalContext.current
     val calendar = Calendar.getInstance()
+    val today = Calendar.getInstance()
+
+    var showAlert by remember { mutableStateOf(false) }
 
     val datePickerDialog = DatePickerDialog(
         context,
         { _, year, month, dayOfMonth ->
-            onDateSelected("%02d/%02d/%04d".format(dayOfMonth, month + 1, year))
+
+            val selectedDate = Calendar.getInstance().apply {
+                set(year, month, dayOfMonth)
+            }
+
+
+            if (selectedDate.before(today)) {
+                showAlert = true
+            } else {
+                onDateSelected("%02d/%02d/%04d".format(dayOfMonth, month + 1, year))
+            }
         },
         calendar.get(Calendar.YEAR),
         calendar.get(Calendar.MONTH),
@@ -104,8 +112,21 @@ fun DatePickerField(
             fontSize = 16.sp
         )
     }
-}
 
+
+    if (showAlert) {
+        AlertDialog(
+            onDismissRequest = { showAlert = false },
+            confirmButton = {
+                TextButton(onClick = { showAlert = false }) {
+                    Text("OK")
+                }
+            },
+            title = { Text("Invalid Date Selection") },
+            text = { Text("Please select a future date for delivery. Past dates are not allowed.") }
+        )
+    }
+}
 
 @Composable
 fun OrderSummaryCard(cartItems: List<Product>, totalAmount: Double) {
@@ -146,9 +167,6 @@ fun OrderSummaryCard(cartItems: List<Product>, totalAmount: Double) {
     }
 }
 
-
-
-
 @OptIn(ExperimentalMaterial3Api::class)
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -168,7 +186,6 @@ fun ConfirmOrderScreen(
     var aadhar by remember { mutableStateOf("") }
     var deliveryDate by remember { mutableStateOf("") }
     var isSubmitting by remember { mutableStateOf(false) }
-
 
     var showDialog by remember { mutableStateOf(false) }
     var dialogMessage by remember { mutableStateOf("") }
@@ -193,9 +210,8 @@ fun ConfirmOrderScreen(
                     Icon(Icons.Default.ArrowBack, contentDescription = "Back", tint = HeadlineColor)
                 }
                 Spacer(modifier = Modifier.width(8.dp))
-                Text("Confirm Order", fontWeight = FontWeight.Bold, fontSize = 20.sp, color = HeadlineColor)
+                Text("Back", fontWeight = FontWeight.Bold, fontSize = 20.sp, color = HeadlineColor)
             }
-
 
             Card(
                 modifier = Modifier.fillMaxWidth(),
@@ -237,11 +253,9 @@ fun ConfirmOrderScreen(
                 }
             }
 
-
             OrderSummaryCard(cartItems = cartItems, totalAmount = totalAmount)
 
             Spacer(modifier = Modifier.height(8.dp))
-
 
             Button(
                 onClick = {
@@ -275,7 +289,6 @@ fun ConfirmOrderScreen(
 
                     isSubmitting = true
 
-
                     val orderId = "ORD_${System.currentTimeMillis()}"
 
                     val orderData = hashMapOf(
@@ -305,7 +318,6 @@ fun ConfirmOrderScreen(
                                     var stockError = false
                                     var errorMessage = ""
 
-
                                     for (item in cartItems) {
                                         val productDoc = db.collection("products")
                                             .document(item.id)
@@ -321,7 +333,6 @@ fun ConfirmOrderScreen(
                                     }
 
                                     if (stockError) {
-
                                         db.collection("orders").document(orderId).delete()
                                         isSubmitting = false
                                         dialogMessage = "Order failed: $errorMessage"
@@ -347,10 +358,8 @@ fun ConfirmOrderScreen(
                                             )
                                             batch.set(orderItemRef, orderItemData)
 
-
                                             val productRef = db.collection("products").document(item.id)
                                             batch.update(productRef, "stock", FieldValue.increment(-item.stock.toLong()))
-
 
                                             val stockMovementId = "${orderId}_STOCK_${index + 1}"
                                             val stockMovementRef = db.collection("stock_movements").document(stockMovementId)
@@ -368,10 +377,8 @@ fun ConfirmOrderScreen(
                                             batch.set(stockMovementRef, stockMovementData)
                                         }
 
-
                                         val userCartRef = db.collection("carts").document(username)
                                         batch.delete(userCartRef)
-
 
                                         batch.commit()
                                             .addOnSuccessListener {
@@ -381,7 +388,6 @@ fun ConfirmOrderScreen(
                                             }
                                             .addOnFailureListener { exception ->
                                                 isSubmitting = false
-
                                                 db.collection("orders").document(orderId).delete()
                                                 dialogMessage = "Failed to process order: ${exception.message}"
                                                 showDialog = true
@@ -428,7 +434,6 @@ fun ConfirmOrderScreen(
             }
         }
     }
-
 
     if (showDialog) {
         AlertDialog(
